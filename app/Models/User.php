@@ -137,7 +137,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function country()
     {
-        return $this->belongsTo(Country::class)->withTrashed();
+        return $this->belongsTo(Country::class);
     }
 
     /**
@@ -146,7 +146,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function city()
     {
-        return $this->belongsTo(City::class)->withTrashed();
+        return $this->belongsTo(City::class);
     }
 
     /**
@@ -155,7 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function village()
     {
-        return $this->belongsTo(Village::class)->withTrashed();
+        return $this->belongsTo(Village::class);
     }
 
     /**

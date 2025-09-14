@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\Dashboard\Dashboard;
+use App\Http\Livewire\Dashboard\Users\Index;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,4 +16,4 @@ use App\Http\Livewire\Dashboard\Dashboard;
 */
 
 Route::get('/', Dashboard::class)->name('admin.dashboard');
-Route::view('users', 'livewire.dashboard.users')->name('admin.users');
+Route::get('/users', Index::class)->name('admin.users');
