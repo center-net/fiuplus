@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Livewire\Dashboard\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,4 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', App\Http\Livewire\Dashboard::class);
+Route::get('/', Dashboard::class)->name('admin.dashboard');
+Route::view('users', 'livewire.dashboard.users')->name('admin.users');
