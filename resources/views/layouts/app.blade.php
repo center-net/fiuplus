@@ -255,6 +255,15 @@
                     sidebarBackdrop.classList.remove('show');
                 }
             });
+
+            // Livewire event to close Bootstrap modal
+            Livewire.on('closeModalEvent', () => {
+                const modalElement = document.getElementById('userFormModal');
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
+            });
         });
     </script>
 </body>

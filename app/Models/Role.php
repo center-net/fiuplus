@@ -26,8 +26,5 @@ class Role extends Model
         return $this->permission->contains('key', $key);
     }
 
-    public function userTrashed()
-    {
-        return $this->hasMany(User::class)->onlyTrashed();
-    }
+
 }

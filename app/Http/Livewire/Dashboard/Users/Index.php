@@ -13,6 +13,11 @@ class Index extends Component
 {
     use WithPagination;
 
+    protected $listeners = [
+        'userSaved' => '$refresh',
+        'closeModal' => 'closeBootstrapModal',
+    ];
+
     // فلاتر وخصائص الواجهة
     public string $search = '';
     public $country_id = '';
@@ -79,5 +84,11 @@ class Index extends Component
         $this->sortDirection = 'asc';
         $this->perPage = 10;
         $this->resetPage();
+    }
+
+    // Method to close the Bootstrap modal using JavaScript
+    public function closeBootstrapModal()
+    {
+        $this->dispatch('closeModalEvent'); // Dispatch a browser event to close the modal
     }
 }

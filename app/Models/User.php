@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -58,7 +58,6 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
-     * القيم التي تتعامل مع الحذف الناعم
      * @var array<int, string>
      */
     protected $dates = [
@@ -81,7 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function role()
     {
-        return $this->belongsTo(Role::class)->withTrashed();
+        return $this->belongsTo(Role::class);
     }
 
     /**

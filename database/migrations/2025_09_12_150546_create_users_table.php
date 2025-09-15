@@ -62,7 +62,6 @@ return new class extends Migration
                  ->comment('آخر ظهور للمستخدم');
             $table->rememberToken()->comment('رمز تذكر تسجيل الدخول');
             $table->timestamps();
-            $table->softDeletes()->comment('تاريخ الحذف الناعم');
         });
     }
 

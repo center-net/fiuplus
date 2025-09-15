@@ -1,16 +1,28 @@
 <div>
     <div class="card">
         <div class="card-header">
+            <div class="row mb-3 align-items-center">
+                <div class="col-md-6">
+                    <h3>ادارة المستخدمين</h3>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userFormModal"
+                        wire:click="$dispatch('openUserFormModal')">
+                        <i class="fas fa-plus ms-1"></i> اضافة مستخدم جديد
+                    </button>
+                </div>
+            </div>
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
                     <label class="form-label">بحث</label>
-                    <input wire:model.live.debounce.400ms="search" type="text" class="form-control" placeholder="ابحث ">
+                    <input wire:model.live.debounce.400ms="search" type="text" class="form-control"
+                        placeholder="ابحث ">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">الدولة</label>
                     <select wire:model.change="country_id" class="form-select">
                         <option value="">الكل</option>
-                        @foreach($countries as $country)
+                        @foreach ($countries as $country)
                             <option value="{{ $country->id }}">{{ $country->name }}</option>
                         @endforeach
                     </select>
@@ -19,7 +31,7 @@
                     <label class="form-label">المدينة</label>
                     <select wire:model.change="city_id" class="form-select" @disabled(!$country_id)>
                         <option value="">الكل</option>
-                        @foreach($cities as $city)
+                        @foreach ($cities as $city)
                             <option value="{{ $city->id }}">{{ $city->name }}</option>
                         @endforeach
                     </select>
@@ -28,7 +40,7 @@
                     <label class="form-label">القرية</label>
                     <select wire:model.change="village_id" class="form-select" @disabled(!$city_id)>
                         <option value="">الكل</option>
-                        @foreach($villages as $village)
+                        @foreach ($villages as $village)
                             <option value="{{ $village->id }}">{{ $village->name }}</option>
                         @endforeach
                     </select>
@@ -56,7 +68,7 @@
                         <tr>
                             <th wire:click="sort('name')" style="cursor: pointer;">
                                 الاسم
-                                @if($sortBy === 'name')
+                                @if ($sortBy === 'name')
                                     <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                     <i class="fas fa-sort"></i>
@@ -64,7 +76,7 @@
                             </th>
                             <th wire:click="sort('email')" style="cursor: pointer;">
                                 البريد الإلكتروني
-                                @if($sortBy === 'email')
+                                @if ($sortBy === 'email')
                                     <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                     <i class="fas fa-sort"></i>
@@ -79,7 +91,12 @@
                     <tbody>
                         @forelse($users as $user)
                             <tr wire:key="user-{{ $user->id }}">
-                                <td class="fw-semibold">{{ $user->name }}</td>
+                                <td class="fw-semibold">
+                                    {{ $user->name }}
+                                    @if ($user->role)
+                                        <div class="text-muted small">{{ $user->role->name }}</div>
+                                    @endif
+                                </td>
                                 <td>
                                     <div>{{ $user->email }}</div>
                                     <div class="text-muted small">{{ $user->username }}</div>
@@ -89,7 +106,9 @@
                                 <td>{{ $user->village->name ?? '-' }}</td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn btn-primary" wire:loading.attr="disabled">
+                                        <button class="btn btn-primary" wire:loading.attr="disabled"
+                                            wire:click="$dispatch('openUserFormModal', { userId: {{ $user->id }} })"
+                                            data-bs-toggle="modal" data-bs-target="#userFormModal">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="btn btn-danger" wire:loading.attr="disabled">
@@ -117,7 +136,18 @@
         </div>
     </div>
 
-    <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy" class="position-fixed bottom-0 end-0 m-3">
+    {{-- User Form Modal --}}
+    <div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true"
+        wire:ignore.self>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <livewire:dashboard.users.form />
+            </div>
+        </div>
+    </div>
+
+    <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy"
+        class="position-fixed bottom-0 end-0 m-3">
         <span class="badge bg-info">جاري التحديث...</span>
     </div>
 </div>

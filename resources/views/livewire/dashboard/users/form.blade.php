@@ -1,3 +1,125 @@
 <div>
-    {{-- Nothing in the world is as soft and yielding as water. --}}
+    <div class="modal-header">
+        <h5 class="modal-title" id="userFormModalLabel">{{ $user_id ? 'تعديل مستخدم' : 'اضافة مستخدم جديد' }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form wire:submit.prevent="save">
+            <div class="mb-3">
+                <label for="name" class="form-label">الاسم</label>
+                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
+                    wire:model="name">
+                @error('name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">اسم المستخدم</label>
+                <input type="text" class="form-control @error('username') is-invalid @enderror" id="username"
+                    wire:model="username">
+                @error('username')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
+                    wire:model="email">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">رقم الهاتف</label>
+                <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
+                    wire:model="phone">
+                @error('phone')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="avatar" class="form-label">صورة المستخدم (رابط)</label>
+                <input type="text" class="form-control @error('avatar') is-invalid @enderror" id="avatar"
+                    wire:model="avatar">
+                @error('avatar')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
+                    wire:model="password">
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="mb-3">
+                <label for="password_confirmation" class="form-label">تأكيد كلمة المرور</label>
+                <input type="password" class="form-control" id="password_confirmation"
+                    wire:model="password_confirmation">
+            </div>
+            {{-- Country, City, Village dropdowns --}}
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="country_id" class="form-label">الدولة</label>
+                    <select class="form-select @error('country_id') is-invalid @enderror" id="country_id"
+                        wire:model.live="country_id">
+                        <option value="">اختر دولة</option>
+                        @foreach ($countries as $country)
+                            <option value="{{ $country->id }}">{{ $country->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('country_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="city_id" class="form-label">المدينة</label>
+                    <select class="form-select @error('city_id') is-invalid @enderror" id="city_id"
+                        wire:model.live="city_id" @disabled(!$country_id)>
+                        <option value="">اختر مدينة</option>
+                        @foreach ($cities as $city)
+                            <option value="{{ $city->id }}">{{ $city->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('city_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="village_id" class="form-label">القرية</label>
+                    <select class="form-select @error('village_id') is-invalid @enderror" id="village_id"
+                        wire:model="village_id" @disabled(!$city_id)>
+                        <option value="">اختر قرية</option>
+                        @foreach ($villages as $village)
+                            <option value="{{ $village->id }}">{{ $village->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('village_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            {{-- Roles and Permissions (simplified for now) --}}
+            <div class="mb-3">
+                <label class="form-label">الأدوار</label>
+                @foreach ($roles as $role)
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="{{ $role->id }}"
+                            id="role-{{ $role->id }}" wire:model="selectedRoles">
+                        <label class="form-check-label" for="role-{{ $role->id }}">
+                            {{ $role->name }}
+                        </label>
+                    </div>
+                @endforeach
+                @error('selectedRoles')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="submit" class="btn btn-primary">حفظ</button>
+            </div>
+        </form>
+    </div>
 </div>
