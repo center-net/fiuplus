@@ -94,7 +94,7 @@
                                 <td class="fw-semibold">
                                     {{ $user->name }}
                                     @if ($user->role)
-                                        <div class="text-muted small">{{ $user->role->name }}</div>
+                                        <div class="text-white small px-2 py-1 rounded {{ $user->role->color ?? '#6c757d' }}">{{ $user->role->name }}</div>
                                     @endif
                                 </td>
                                 <td>

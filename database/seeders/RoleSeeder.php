@@ -36,7 +36,7 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate([
             'name' => 'مستخدم',
             'key' => 'user',
-            'color' => 'bg-light text-dark',
+            'color' => 'bg-primary text-dark',
         ]);
 
         Role::firstOrCreate([
