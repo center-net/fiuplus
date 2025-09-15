@@ -1,16 +1,19 @@
 <div>
+    @can('browse_users')
     <div class="card">
         <div class="card-header">
             <div class="row mb-3 align-items-center">
                 <div class="col-md-6">
                     <h3>ادارة المستخدمين</h3>
                 </div>
+                @can('add_users')
                 <div class="col-md-6 text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userFormModal"
                         wire:click="$dispatch('openUserFormModal')">
                         <i class="fas fa-plus ms-1"></i> اضافة مستخدم جديد
                     </button>
                 </div>
+                @endcan
             </div>
             <div class="row g-2 align-items-end">
                 <div class="col-md-3">
@@ -93,9 +96,11 @@
                             <tr wire:key="user-{{ $user->id }}">
                                 <td class="fw-semibold">
                                     {{ $user->name }}
-                                    @if ($user->role)
-                                        <div class="text-white small px-2 py-1 rounded {{ $user->role->color ?? '#6c757d' }}">{{ $user->role->name }}</div>
-                                    @endif
+                                    <div class="d-flex gap-1 mt-1">
+                                    @foreach($user->roles as $role)
+                                        <span class="badge {{ $role->color ?? 'bg-secondary' }}">{{ $role->name }}</span>
+                                    @endforeach
+                                    </div>
                                 </td>
                                 <td>
                                     <div>{{ $user->email }}</div>
@@ -106,14 +111,20 @@
                                 <td>{{ $user->village->name ?? '-' }}</td>
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        @can('update', $user)
                                         <button class="btn btn-primary" wire:loading.attr="disabled"
                                             wire:click="$dispatch('openUserFormModal', { userId: {{ $user->id }} })"
                                             data-bs-toggle="modal" data-bs-target="#userFormModal">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-danger" wire:loading.attr="disabled">
+                                        @endcan
+                                        @can('delete', $user)
+                                        <button class="btn btn-danger" wire:loading.attr="disabled"
+                                            wire:click="delete({{ $user->id }})"
+                                            onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا المستخدم؟');">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -135,6 +146,11 @@
             </div>
         </div>
     </div>
+    @else
+    <div class="alert alert-danger">
+        ليس لديك الصلاحية لعرض هذه الصفحة.
+    </div>
+    @endcan
 
     {{-- User Form Modal --}}
     <div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true"

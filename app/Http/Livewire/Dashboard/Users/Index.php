@@ -8,10 +8,11 @@ use App\Models\City;
 use App\Models\Village;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, AuthorizesRequests;
 
     protected $listeners = [
         'userSaved' => '$refresh',
@@ -43,8 +44,10 @@ class Index extends Component
 
     public function render()
     {
+        $this->authorize('viewAny', User::class);
+
         $users = User::query()
-            ->with(['country', 'city', 'village'])
+            ->with(['country', 'city', 'village', 'roles'])
             ->when($this->search, fn($q) => $q->search($this->search))
             ->when($this->country_id, fn($q) => $q->where('country_id', $this->country_id))
             ->when($this->city_id, fn($q) => $q->where('city_id', $this->city_id))
@@ -84,6 +87,20 @@ class Index extends Component
         $this->sortDirection = 'asc';
         $this->perPage = 10;
         $this->resetPage();
+    }
+
+    public function delete($userId)
+    {
+        $user = User::findOrFail($userId);
+        $this->authorize('delete', $user);
+
+        if ($user->id === auth()->id()) {
+            session()->flash('error', 'لا يمكنك حذف حسابك.');
+            return;
+        }
+
+        $user->delete();
+        session()->flash('message', 'تم حذف المستخدم بنجاح.');
     }
 
     // Method to close the Bootstrap modal using JavaScript
