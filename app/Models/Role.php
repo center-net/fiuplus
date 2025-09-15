@@ -11,19 +11,19 @@ class Role extends Model
 
     protected $fillable = ['name', 'key', 'color'];
 
-    public function permission()
+    public function permissions()
     {
         return $this->belongsToMany(Permission::class);
     }
 
-    public function user()
+    public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class);
     }
 
     public function hasPermission($key)
     {
-        return $this->permission->contains('key', $key);
+        return $this->permissions->contains('key', $key);
     }
 
 

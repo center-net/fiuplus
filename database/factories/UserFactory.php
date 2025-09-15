@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -45,5 +46,39 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Configure the model factory.
+     *
+     * @return $this
+     */
+    public function configure()
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            // Attach the default 'user' role unless other roles are specified
+            if ($user->roles->isEmpty()) {
+                $userRole = Role::where('key', 'user')->first();
+                if ($userRole) {
+                    $user->roles()->attach($userRole);
+                }
+            }
+        });
+    }
+
+    /**
+     * Indicate that the user should have a specific role.
+     *
+     * @param string $roleKey
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    public function withRole(string $roleKey)
+    {
+        return $this->afterCreating(function (\App\Models\User $user) use ($roleKey) {
+            $role = Role::where('key', $roleKey)->first();
+            if ($role) {
+                $user->roles()->sync([$role->id]);
+            }
+        });
     }
 }

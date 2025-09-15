@@ -19,7 +19,6 @@ class Form extends Component
     public $email;
     public $phone;
     public $password;
-    public $password_confirmation;
     public $avatar;
     public $country_id;
     public $city_id;
@@ -69,7 +68,7 @@ class Form extends Component
         $this->user_id = $userId;
 
         if ($userId) {
-            $user = User::findOrFail($userId);
+            $user = User::with('roles')->findOrFail($userId);
             $this->name = $user->name;
             $this->username = $user->username;
             $this->email = $user->email;
@@ -78,10 +77,8 @@ class Form extends Component
             $this->country_id = $user->country_id;
             $this->city_id = $user->city_id;
             $this->village_id = $user->village_id;
-            // استخدام علاقة role بدلاً من roles
-            if ($user->role) {
-                $this->selectedRoles = [$user->role->id];
-            }
+            
+            $this->selectedRoles = $user->roles->pluck('id')->toArray();
 
             // Load cities and villages based on user's country and city
             if ($this->country_id) {
@@ -116,7 +113,7 @@ class Form extends Component
                 'max:20',
                 Rule::unique('users')->ignore($this->user_id),
             ],
-            'password' => $this->user_id ? 'nullable|string|min:8|confirmed' : 'required|string|min:8|confirmed',
+            'password' => $this->user_id ? 'nullable|string|min:8' : 'required|string|min:8',
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
             'village_id' => 'nullable|exists:villages,id',
@@ -146,9 +143,7 @@ class Form extends Component
                 $user->update(['password' => Hash::make($this->password)]);
             }
 
-            // تحديث دور المستخدم بدلاً من مزامنة الأدوار
-            $user->role_id = $this->selectedRoles[0] ?? null;
-            $user->save();
+            $user->roles()->sync($this->selectedRoles);
 
             session()->flash('message', 'تم تحديث المستخدم بنجاح.');
         } else {
@@ -167,12 +162,9 @@ class Form extends Component
                 'country_id' => $this->country_id,
                 'city_id' => $this->city_id,
                 'village_id' => $this->village_id,
-                'role_id' => $this->selectedRoles[0], // إضافة دور افتراضي
             ]);
 
-            // تحديث دور المستخدم بدلاً من مزامنة الأدوار
-            $user->role_id = $this->selectedRoles[0] ?? null;
-            $user->save();
+            $user->roles()->sync($this->selectedRoles);
 
             session()->flash('message', 'تم اضافة المستخدم بنجاح.');
         }
@@ -190,7 +182,6 @@ class Form extends Component
         $this->email = '';
         $this->phone = '';
         $this->password = '';
-        $this->password_confirmation = '';
         $this->avatar = '';
         $this->country_id = null;
         $this->city_id = null;

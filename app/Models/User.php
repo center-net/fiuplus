@@ -31,7 +31,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'username',
         'avatar',
         'phone',
-        'role_id',
         'country_id',
         'city_id',
         'village_id',
@@ -75,12 +74,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * علاقة المستخدم بالدور
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * The roles that belong to the user.
      */
-    public function role()
+    public function roles()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Role::class);
     }
 
     /**
@@ -93,41 +91,54 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * التحقق من امتلاك المستخدم لصلاحية معينة
+     * Check if the user has a specific permission.
+     *
      * @param string $key
      * @return bool
      */
     public function hasPermission($key)
     {
-        // التحقق من عدم حظر المستخدم
-        if ($this->role && $this->role->key === 'banned') {
+        if ($this->isBanned()) {
             return false;
         }
 
-        return Cache::remember("user.{$this->id}.permission.{$key}", 3600, function() use ($key) {
-            return $this->permissions->contains('key', $key) || 
-                   ($this->role && $this->role->permissions->contains('key', $key));
+        return Cache::remember("user.{$this->id}.permission.{$key}", 3600, function () use ($key) {
+            // Check direct permissions
+            if ($this->permissions->contains('key', $key)) {
+                return true;
+            }
+
+            // Check permissions through roles
+            foreach ($this->roles as $role) {
+                if ($role->permissions->contains('key', $key)) {
+                    return true;
+                }
+            }
+
+            return false;
         });
     }
 
     /**
-     * التحقق من دور المستخدم
+     * Check if the user has a specific role.
+     *
      * @param string $key
      * @return bool
      */
     public function hasRole($key)
     {
-        return $this->role && $this->role->key === $key;
+        return $this->roles->contains('key', $key);
     }
 
     /**
-     * التحقق من امتلاك المستخدم لأي من الأدوار المحددة
+     * Check if the user has any of the given roles.
+     *
      * @param array $keys
      * @return bool
      */
     public function hasAnyRole($keys)
     {
-        return $this->role && in_array($this->role->key, $keys);
+        return $this->roles()->whereIn('key', $keys)->exists();
     }
 
     /**
@@ -176,12 +187,13 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * التحقق من حالة حظر المستخدم
+     * Check if the user is banned.
+     *
      * @return bool
      */
     public function isBanned()
     {
-        return $this->role && $this->role->key === 'banned';
+        return $this->hasRole('banned');
     }
 
     /**
@@ -247,8 +259,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function clearPermissionsCache()
     {
         Cache::forget("user.{$this->id}.permissions");
-        foreach ($this->permissions as $permission) {
-            Cache::forget("user.{$this->id}.permission.{$permission->key}");
+        foreach ($this->roles as $role) {
+            foreach ($role->permissions as $permission) {
+                Cache::forget("user.{$this->id}.permission.{$permission->key}");
+            }
         }
     }
 
@@ -273,7 +287,7 @@ class User extends Authenticatable implements MustVerifyEmail
         // عند تحديث المستخدم
         static::updated(function ($user) {
             // إذا تم تغيير الدور أو الصلاحيات، نمسح الصلاحيات المخزنة مؤقتاً
-            if ($user->isDirty('role_id')) {
+            if ($user->isDirty('roles')) {
                 $user->clearPermissionsCache();
             }
         });
