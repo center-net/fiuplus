@@ -32,12 +32,42 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="avatar" class="form-label">صورة المستخدم (رابط)</label>
-                    <input type="text" class="form-control @error('avatar') is-invalid @enderror" id="avatar"
-                        wire:model="avatar">
+                <div class="col-md-6 mb-3" x-data="{ isUploading: false, progress: 0 }">
+                    <label for="avatar" class="form-label">صورة المستخدم</label>
+
+                    <!-- Image Preview -->
+                    <div class="mb-2">
+                        @if ($avatar)
+                            @if(is_string($avatar))
+                                {{-- Existing avatar from URL --}}
+                                <img src="{{ asset('storage/users/' . $avatar) }}" alt="Avatar Preview" class="img-thumbnail" width="150">
+                            @else
+                                {{-- New avatar preview --}}
+                                <img src="{{ $avatar->temporaryUrl() }}" alt="Avatar Preview" class="img-thumbnail" width="150">
+                            @endif
+                        @else
+                            {{-- Placeholder --}}
+                            <img src="https://via.placeholder.com/150" alt="Avatar Placeholder" class="img-thumbnail" width="150">
+                        @endif
+                    </div>
+
+                    <!-- File Input -->
+                    <div
+                        x-on:livewire-upload-start="isUploading = true"
+                        x-on:livewire-upload-finish="isUploading = false"
+                        x-on:livewire-upload-error="isUploading = false"
+                        x-on:livewire-upload-progress="progress = $event.detail.progress"
+                    >
+                        <input type="file" class="form-control @error('avatar') is-invalid @enderror" id="avatar" wire:model="avatar">
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div x-show="isUploading" class="progress mt-2">
+                        <div class="progress-bar" role="progressbar" :style="`width: ${progress}%`" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100" x-text="`${progress}%`"></div>
+                    </div>
+
                     @error('avatar')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="col-md-6 mb-3">

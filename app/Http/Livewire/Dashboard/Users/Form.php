@@ -10,9 +10,12 @@ use App\Models\Village;
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
 
 class Form extends Component
 {
+    use WithFileUploads;
+
     public $user_id;
     public $name;
     public $username;
@@ -38,7 +41,6 @@ class Form extends Component
         $this->countries = Country::all();
         $this->roles = Role::all();
 
-        // تعيين دور افتراضي للمستخدمين الجدد
         $defaultRole = Role::where('name', 'user')->first();
         if ($defaultRole) {
             $this->defaultRoleId = $defaultRole->id;
@@ -80,7 +82,6 @@ class Form extends Component
             
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
 
-            // Load cities and villages based on user's country and city
             if ($this->country_id) {
                 $this->cities = City::where('country_id', $this->country_id)->get();
             }
@@ -94,26 +95,11 @@ class Form extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('users')->ignore($this->user_id),
-            ],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($this->user_id),
-            ],
-            'phone' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('users')->ignore($this->user_id),
-            ],
+            'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($this->user_id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user_id)],
+            'phone' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($this->user_id)],
             'password' => $this->user_id ? 'nullable|string|min:8' : 'required|string|min:8',
+            'avatar' => 'nullable|image|max:1024', // Max 1MB
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
             'village_id' => 'nullable|exists:villages,id',
@@ -124,53 +110,42 @@ class Form extends Component
 
     public function save()
     {
-        $this->validate();
+        $validatedData = $this->validate();
+
+        // Handle file upload
+        if ($this->avatar && !is_string($this->avatar)) {
+            $validatedData['avatar'] = $this->avatar->store('avatars', 'public');
+        }
 
         if ($this->user_id) {
             $user = User::findOrFail($this->user_id);
-            $user->update([
-                'name' => $this->name,
-                'username' => $this->username,
-                'email' => $this->email,
-                'phone' => $this->phone,
-                'avatar' => $this->avatar,
-                'country_id' => $this->country_id,
-                'city_id' => $this->city_id,
-                'village_id' => $this->village_id,
-            ]);
-
+            
             if ($this->password) {
-                $user->update(['password' => Hash::make($this->password)]);
+                $validatedData['password'] = Hash::make($this->password);
+            } else {
+                unset($validatedData['password']); // Don't update password if it's empty
             }
 
+            $user->update($validatedData);
             $user->roles()->sync($this->selectedRoles);
 
             session()->flash('message', 'تم تحديث المستخدم بنجاح.');
         } else {
-            // التأكد من وجود دور مختار
-            if (empty($this->selectedRoles) || !is_array($this->selectedRoles)) {
+            // Ensure there's a role for new users
+            if (empty($this->selectedRoles)) {
                 $this->selectedRoles = [$this->defaultRoleId];
             }
+            
+            $validatedData['password'] = Hash::make($this->password);
 
-            $user = User::create([
-                'name' => $this->name,
-                'username' => $this->username,
-                'email' => $this->email,
-                'phone' => $this->phone,
-                'avatar' => $this->avatar,
-                'password' => Hash::make($this->password),
-                'country_id' => $this->country_id,
-                'city_id' => $this->city_id,
-                'village_id' => $this->village_id,
-            ]);
-
+            $user = User::create($validatedData);
             $user->roles()->sync($this->selectedRoles);
 
             session()->flash('message', 'تم اضافة المستخدم بنجاح.');
         }
 
-        $this->dispatch('userSaved'); // Event to notify index component to refresh
-        $this->dispatch('closeModal'); // Event to close the modal
+        $this->dispatch('userSaved');
+        $this->dispatch('closeModal');
         $this->resetForm();
     }
 
@@ -182,12 +157,11 @@ class Form extends Component
         $this->email = '';
         $this->phone = '';
         $this->password = '';
-        $this->avatar = '';
+        $this->avatar = null;
         $this->country_id = null;
         $this->city_id = null;
         $this->village_id = null;
 
-        // إعادة تعيين الأدوار إلى الافتراضي للمستخدمين الجدد
         if (!$this->user_id && isset($this->defaultRoleId)) {
             $this->selectedRoles = [$this->defaultRoleId];
         } else {
