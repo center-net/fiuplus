@@ -95,12 +95,12 @@ class Index extends Component
         $this->authorize('delete', $user);
 
         if ($user->id === auth()->id()) {
-            session()->flash('error', 'لا يمكنك حذف حسابك.');
+            $this->dispatch('show-toast', message: 'لا يمكنك حذف حسابك.');
             return;
         }
 
         $user->delete();
-        session()->flash('message', 'تم حذف المستخدم بنجاح.');
+        $this->dispatch('show-toast', message: 'تم حذف المستخدم بنجاح.');
     }
 
     // Method to close the Bootstrap modal using JavaScript
