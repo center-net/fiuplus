@@ -156,13 +156,13 @@
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a href="#" class="nav-link active" aria-current="page">
+                        <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->is('*/') ? 'active' : '' }}" aria-current="page">
                             <i class="fas fa-home me-2"></i>
                             الرئيسية
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('admin.users') }}" class="nav-link text-white">
+                        <a href="{{ route('admin.users') }}" class="nav-link text-white {{ request()->is('*users') ? 'active' : '' }}">
                             <i class="fas fa-users me-2"></i>
                             المستخدمين
                         </a>
