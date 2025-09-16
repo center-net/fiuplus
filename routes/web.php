@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Dashboard\Dashboard;
-use App\Http\Livewire\Dashboard\Users\Index;
+use App\Http\Livewire\Dashboard\Users\Index as UsersIndex;
+use App\Http\Livewire\Dashboard\Roles\Index as RolesIndex;
+use App\Http\Livewire\Dashboard\Permissions\Index as PermissionsIndex;
 use App\Http\Livewire\Auth\Login;
 // use App\Http\Livewire\Auth\Register;
 
@@ -35,5 +37,7 @@ Route::post('/logout', function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::get('/', Dashboard::class)->name('admin.dashboard');
-    Route::get('/users', Index::class)->name('admin.users');
+    Route::get('/users', UsersIndex::class)->name('admin.users');
+    Route::get('/roles', RolesIndex::class)->name('admin.roles');
+    Route::get('/permissions', PermissionsIndex::class)->name('admin.permissions');
 });

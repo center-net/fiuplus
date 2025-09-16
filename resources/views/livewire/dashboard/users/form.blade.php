@@ -40,7 +40,7 @@
                         @if ($avatar)
                             @if(is_string($avatar))
                                 {{-- Existing avatar from URL --}}
-                                <img src="{{ asset('storage/users/' . $avatar) }}" alt="Avatar Preview" class="img-thumbnail" width="150">
+                                <img src="{{ asset('storage/' . $avatar) }}" alt="Avatar Preview" class="img-thumbnail" width="150">
                             @else
                                 {{-- New avatar preview --}}
                                 <img src="{{ $avatar->temporaryUrl() }}" alt="Avatar Preview" class="img-thumbnail" width="150">

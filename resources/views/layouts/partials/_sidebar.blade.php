@@ -28,7 +28,13 @@
                 </a>
             </li>
             <li>
-                <a href="#" class="nav-link text-white">
+                <a href="{{ route('admin.roles') }}" class="nav-link text-white {{ request()->is('*roles') ? 'active' : '' }}">
+                    <i class="fas fa-user-tag me-2"></i>
+                    الأدوار
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.permissions') }}" class="nav-link text-white {{ request()->is('*permissions') ? 'active' : '' }}">
                     <i class="fas fa-user-shield me-2"></i>
                     الصلاحيات
                 </a>
