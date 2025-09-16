@@ -129,7 +129,7 @@ class Form extends Component
             $user->update($validatedData);
             $user->roles()->sync($this->selectedRoles);
 
-            session()->flash('message', 'تم تحديث المستخدم بنجاح.');
+            $this->dispatch('show-toast', message: 'تم تحديث المستخدم بنجاح.');
         } else {
             // Ensure there's a role for new users
             if (empty($this->selectedRoles)) {
@@ -141,7 +141,7 @@ class Form extends Component
             $user = User::create($validatedData);
             $user->roles()->sync($this->selectedRoles);
 
-            session()->flash('message', 'تم اضافة المستخدم بنجاح.');
+            $this->dispatch('show-toast', message: 'تم اضافة المستخدم بنجاح.');
         }
 
         $this->dispatch('userSaved');
