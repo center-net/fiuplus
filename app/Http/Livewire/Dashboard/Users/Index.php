@@ -3,16 +3,14 @@
 namespace App\Http\Livewire\Dashboard\Users;
 
 use App\Models\User;
-use App\Models\Country;
-use App\Models\City;
-use App\Models\Village;
+use App\Traits\HasLocationLogic;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
-    use WithPagination, AuthorizesRequests;
+    use WithPagination, AuthorizesRequests, HasLocationLogic;
 
     protected $listeners = [
         'userSaved' => '$refresh',
@@ -46,6 +44,13 @@ class Index extends Component
     {
         $this->authorize('viewAny', User::class);
 
+        // Load location data if not loaded
+        if (empty($this->countries)) {
+            $this->loadCountries();
+        }
+        $this->loadCities($this->country_id);
+        $this->loadVillages($this->city_id);
+
         $users = User::query()
             ->with(['country', 'city', 'village', 'roles'])
             ->when($this->search, fn($q) => $q->search($this->search))
@@ -55,11 +60,7 @@ class Index extends Component
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $countries = Country::orderBy('name')->get();
-        $cities = $this->country_id ? City::where('country_id', $this->country_id)->orderBy('name')->get() : collect();
-        $villages = $this->city_id ? Village::where('city_id', $this->city_id)->orderBy('name')->get() : collect();
-
-        return view('livewire.dashboard.users.index', compact('users', 'countries', 'cities', 'villages'))
+        return view('livewire.dashboard.users.index', compact('users'))
             ->layout('layouts.app', ['title' => 'المستخدمون']);
     }
 
@@ -75,8 +76,6 @@ class Index extends Component
     }
 
     public function updatedSearch(): void { $this->resetPage(); }
-    public function updatedCountryId(): void { $this->city_id = ''; $this->village_id = ''; $this->resetPage(); }
-    public function updatedCityId(): void { $this->village_id = ''; $this->resetPage(); }
     public function updatedVillageId(): void { $this->resetPage(); }
     public function updatedPerPage(): void { $this->resetPage(); }
 

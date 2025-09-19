@@ -21,33 +21,7 @@
                     <input wire:model.live.debounce.400ms="search" type="text" class="form-control"
                         placeholder="ابحث ">
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">الدولة</label>
-                    <select wire:model.change="country_id" class="form-select">
-                        <option value="">الكل</option>
-                        @foreach ($countries as $country)
-                            <option value="{{ $country->id }}">{{ $country->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">المدينة</label>
-                    <select wire:model.change="city_id" class="form-select" @disabled(!$country_id)>
-                        <option value="">الكل</option>
-                        @foreach ($cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">القرية</label>
-                    <select wire:model.change="village_id" class="form-select" @disabled(!$city_id)>
-                        <option value="">الكل</option>
-                        @foreach ($villages as $village)
-                            <option value="{{ $village->id }}">{{ $village->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                @include('layouts.partials._location_dropdowns', ['modelPrefix' => '', 'colSize' => 'col-md-2'])
                 <div class="col-md-1">
                     <label class="form-label">صفحة</label>
                     <select wire:model.change="perPage" class="form-select">

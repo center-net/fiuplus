@@ -103,45 +103,14 @@
             </div>
             {{-- Country, City, Village dropdowns --}}
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="country_id" class="form-label">الدولة</label>
-                    <select class="form-select @error('country_id') is-invalid @enderror" id="country_id"
-                        wire:model.live="country_id">
-                        <option value="">اختر دولة</option>
-                        @foreach ($countries as $country)
-                            <option value="{{ $country->id }}">{{ $country->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('country_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="city_id" class="form-label">المدينة</label>
-                    <select class="form-select @error('city_id') is-invalid @enderror" id="city_id"
-                        wire:model.live="city_id" @disabled(!$country_id)>
-                        <option value="">اختر مدينة</option>
-                        @foreach ($cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('city_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="village_id" class="form-label">القرية</label>
-                    <select class="form-select @error('village_id') is-invalid @enderror" id="village_id"
-                        wire:model="village_id" @disabled(!$city_id)>
-                        <option value="">اختر قرية</option>
-                        @foreach ($villages as $village)
-                            <option value="{{ $village->id }}">{{ $village->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('village_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                @include('layouts.partials._location_dropdowns', [
+                    'modelPrefix' => '',
+                    'colSize' => 'col-md-4',
+                    'useLive' => true,
+                    'showErrors' => true,
+                    'fieldPrefix' => '',
+                    'isSearch' => false
+                ])
             </div>
             {{-- Roles and Permissions (simplified for now) --}}
 

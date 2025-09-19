@@ -244,7 +244,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getAvatarUrl()
     {
         if ($this->avatar) {
-            return asset('storage/users/' . $this->avatar);
+            return asset('storage/' . $this->avatar);
         }
         
         // إذا لم يكن هناك صورة، نستخدم صورة افتراضية من UI Avatars

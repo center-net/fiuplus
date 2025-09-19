@@ -2,11 +2,9 @@
 
 namespace App\Http\Livewire\Dashboard\Users;
 
-use App\Models\City;
-use App\Models\Country;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Village;
+use App\Traits\HasLocationLogic;
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -14,7 +12,7 @@ use Livewire\WithFileUploads;
 
 class Form extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, HasLocationLogic;
 
     public $user_id;
     public $name;
@@ -29,16 +27,13 @@ class Form extends Component
     public $selectedRoles = [];
     public $defaultRoleId;
 
-    public $countries = [];
-    public $cities = [];
-    public $villages = [];
     public $roles = [];
 
     protected $listeners = ['openUserFormModal' => 'loadUser'];
 
     public function mount()
     {
-        $this->countries = Country::all();
+        $this->loadCountries();
         $this->roles = Role::all();
 
         $defaultRole = Role::where('name', 'user')->first();
@@ -50,19 +45,7 @@ class Form extends Component
         $this->resetForm();
     }
 
-    public function updatedCountryId($value)
-    {
-        $this->cities = City::where('country_id', $value)->get();
-        $this->city_id = null;
-        $this->villages = [];
-        $this->village_id = null;
-    }
 
-    public function updatedCityId($value)
-    {
-        $this->villages = Village::where('city_id', $value)->get();
-        $this->village_id = null;
-    }
 
     public function loadUser($userId = null)
     {
@@ -79,15 +62,11 @@ class Form extends Component
             $this->country_id = $user->country_id;
             $this->city_id = $user->city_id;
             $this->village_id = $user->village_id;
-            
+
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
 
-            if ($this->country_id) {
-                $this->cities = City::where('country_id', $this->country_id)->get();
-            }
-            if ($this->city_id) {
-                $this->villages = Village::where('city_id', $this->city_id)->get();
-            }
+            $this->loadCities($this->country_id);
+            $this->loadVillages($this->city_id);
         }
     }
 
@@ -114,7 +93,7 @@ class Form extends Component
 
         // Handle file upload
         if ($this->avatar && !is_string($this->avatar)) {
-            $validatedData['avatar'] = $this->avatar->store('avatars', 'public');
+            $validatedData['avatar'] = $this->avatar->store('users/avatars', 'public');
         }
 
         if ($this->user_id) {
@@ -168,8 +147,6 @@ class Form extends Component
             $this->selectedRoles = [];
         }
 
-        $this->cities = [];
-        $this->villages = [];
         $this->resetValidation();
     }
 
