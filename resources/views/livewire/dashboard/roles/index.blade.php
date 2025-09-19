@@ -110,14 +110,8 @@
     @endcan
 
     {{-- Role Form Modal --}}
-    <div class="modal fade" id="roleFormModal" tabindex="-1" aria-labelledby="roleFormModalLabel" aria-hidden="true"
-        wire:ignore.self>
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <livewire:dashboard.roles.form />
-            </div>
-        </div>
-    </div>
+    
+        <livewire:dashboard.roles.form />
 
     <div wire:loading wire:target="search,perPage,sortBy" class="position-fixed bottom-0 end-0 m-3">
         <span class="badge bg-info">جاري التحديث...</span>
@@ -125,14 +119,9 @@
 
 
     {{-- Users Modal --}}
-    <div class="modal fade" id="usersModal" tabindex="-1" aria-labelledby="usersModalLabel" aria-hidden="true"
-        wire:ignore.self>
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <livewire:dashboard.roles.users-modal />
-            </div>
-        </div>
-    </div>
+    <x-modal id="usersModal" size="modal-lg" title="المستخدمون">
+        <livewire:dashboard.roles.users-modal />
+    </x-modal>
 </div>
 @script
     <script>

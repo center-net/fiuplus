@@ -107,14 +107,11 @@
     <div class="alert alert-danger">ليس لديك الصلاحية لعرض هذه الصفحة.</div>
     @endcan
 
+
     {{-- Permission Form Modal --}}
-    <div class="modal fade" id="permissionFormModal" tabindex="-1" aria-labelledby="permissionFormModalLabel" aria-hidden="true" wire:ignore.self>
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <livewire:dashboard.permissions.form />
-            </div>
-        </div>
-    </div>
+    
+        <livewire:dashboard.permissions.form />
+    
 
     <div wire:loading wire:target="search,perPage,sortBy" class="position-fixed bottom-0 end-0 m-3">
         <span class="badge bg-info">جاري التحديث...</span>

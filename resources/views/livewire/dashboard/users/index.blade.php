@@ -127,14 +127,9 @@
     @endcan
 
     {{-- User Form Modal --}}
-    <div class="modal fade" id="userFormModal" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true"
-        wire:ignore.self>
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <livewire:dashboard.users.form />
-            </div>
-        </div>
-    </div>
+    <x-modal id="userFormModal" size="modal-lg" title="إضافة/تعديل مستخدم">
+        <livewire:dashboard.users.form />
+    </x-modal>
 
     <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy"
         class="position-fixed bottom-0 end-0 m-3">

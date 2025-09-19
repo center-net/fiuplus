@@ -1,8 +1,5 @@
 <div>
-    <div class="modal-header">
-        <h5 class="modal-title" id="permissionFormModalLabel">{{ $permission_id ? 'تعديل صلاحية' : 'اضافة صلاحية جديدة' }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
+<x-modal id="permissionFormModal" size="" title="{{ $permission_id ? 'تعديل صلاحية' : 'اضافة صلاحية جديدة' }}">
     <div class="modal-body">
         <form wire:submit.prevent="save">
             <div class="row">
@@ -23,10 +20,7 @@
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="submit" class="btn btn-primary">حفظ</button>
-            </div>
+          </x-modal>
         </form>
     </div>
 </div>

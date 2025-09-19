@@ -1,8 +1,5 @@
 <div>
-    <div class="modal-header">
-        <h5 class="modal-title" id="roleFormModalLabel">{{ $role_id ? 'تعديل دور' : 'اضافة دور جديد' }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-    </div>
+    <x-modal id="roleFormModal" size="modal-lg" title="{{ $role_id ? 'تعديل دور' : 'اضافة دور جديد' }}">
     <div class="modal-body">
         <form wire:submit.prevent="save">
             <div class="row">
@@ -48,10 +45,8 @@
                 @error('selectedPermissions') <div class="text-danger">{{ $message }}</div> @enderror
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                <button type="submit" class="btn btn-primary">حفظ</button>
-            </div>
+        </x-modal>
+
         </form>
     </div>
 </div>
