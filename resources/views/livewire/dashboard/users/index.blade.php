@@ -127,10 +127,9 @@
     @endcan
 
     {{-- User Form Modal --}}
-    <x-modal id="userFormModal" size="modal-lg" title="إضافة/تعديل مستخدم">
+    
         <livewire:dashboard.users.form />
-    </x-modal>
-
+   
     <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy"
         class="position-fixed bottom-0 end-0 m-3">
         <span class="badge bg-info">جاري التحديث...</span>
