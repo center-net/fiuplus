@@ -4,10 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\GeneratesSlug;
 
 class Country extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesSlug;
+
+    /**
+     * Override slug max length for countries (10 chars as required).
+     */
+    protected function slugMax(): int
+    {
+        return 10;
+    }
 
     /**
      * الحقول التي يمكن تعبئتها جماعياً
@@ -31,15 +40,6 @@ class Country extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * تحويل رمز الدولة إلى حروف كبيرة
-     * @param string $value
-     */
-    public function setSlugAttribute($value)
-    {
-        $this->attributes['slug'] = strtoupper($value);
-    }
-    
     /**
      * تحويل رمز ISO3 إلى حروف كبيرة
      * @param string $value

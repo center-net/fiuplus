@@ -45,24 +45,30 @@
                 </a>
             </li>
             @endcan
+            @can('viewAny', \App\Models\Country::class)
             <li>
-                <a href="#" class="nav-link text-white">
+                <a href="{{ route('admin.countries') }}" class="nav-link text-white {{ request()->is('*countries') ? 'active' : ''}}">
                     <i class="fas fa-globe me-2"></i>
                     الدول
                 </a>
             </li>
+            @endcan
+            @can('viewAny', \App\Models\City::class)
             <li>
-                <a href="#" class="nav-link text-white">
+                <a href="{{ route('admin.cities') }}" class="nav-link text-white {{ request()->is('*cities') ? 'active' : ''}}">
                     <i class="fas fa-city me-2"></i>
                     المدن
                 </a>
             </li>
+            @endcan
+            @can('viewAny', \App\Models\Village::class)
             <li>
-                <a href="#" class="nav-link text-white">
+                <a href="{{ route('admin.villages') }}" class="nav-link text-white {{ request()->is('*villages') ? 'active' : ''}}">
                     <i class="fas fa-map-marker-alt me-2"></i>
                     القرى
                 </a>
             </li>
+            @endcan
         </ul>
     </div>
 </div>

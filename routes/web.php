@@ -6,6 +6,9 @@ use App\Http\Livewire\Dashboard\Dashboard;
 use App\Http\Livewire\Dashboard\Users\Index as UsersIndex;
 use App\Http\Livewire\Dashboard\Roles\Index as RolesIndex;
 use App\Http\Livewire\Dashboard\Permissions\Index as PermissionsIndex;
+use App\Http\Livewire\Dashboard\Countries\Index as CountriesIndex;
+use App\Http\Livewire\Dashboard\Cities\Index as CitiesIndex;
+use App\Http\Livewire\Dashboard\Villages\Index as VillagesIndex;
 use App\Http\Livewire\Auth\Login;
 // use App\Http\Livewire\Auth\Register;
 
@@ -40,4 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/users', UsersIndex::class)->name('admin.users');
     Route::get('/roles', RolesIndex::class)->name('admin.roles');
     Route::get('/permissions', PermissionsIndex::class)->name('admin.permissions');
+
+    // Locations Management
+    Route::get('/countries', CountriesIndex::class)->name('admin.countries');
+    Route::get('/cities', CitiesIndex::class)->name('admin.cities');
+    Route::get('/villages', VillagesIndex::class)->name('admin.villages');
 });

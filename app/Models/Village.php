@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use App\Traits\GeneratesSlug;
 
 class Village extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesSlug;
 
     /**
      * الحقول التي يمكن تعبئتها جماعياً
@@ -36,15 +36,6 @@ class Village extends Model
         'latitude' => 'float',
         'longitude' => 'float'
     ];
-
-    /**
-     * تحويل الـ slug إلى الصيغة المناسبة
-     * @param string $value
-     */
-    public function setSlugAttribute($value)
-    {
-        $this->attributes['slug'] = Str::slug($value, '-');
-    }
 
     /**
      * علاقة القرية بالمدينة
@@ -77,7 +68,7 @@ class Village extends Model
             'id',
             'city_id',
             'country_id'
-        )->withTrashed();
+        );
     }
 
     /**

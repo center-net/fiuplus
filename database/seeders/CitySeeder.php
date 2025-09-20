@@ -50,11 +50,16 @@ class CitySeeder extends Seeder
         ];
 
         foreach ($cities as $city) {
-            City::firstOrCreate([
-                'country_id' => $palestine,
-                'name' => $city['name'],
-                'slug' => $city['slug'],
-            ]);
+            City::firstOrCreate(
+                [
+                    'country_id' => $palestine,
+                    'slug' => $city['slug'],
+                ],
+                [
+                    'name' => $city['name'],
+                    'delivery_cost' => 0.00,
+                ]
+            );
         }
     }
 }

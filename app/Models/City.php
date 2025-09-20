@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use App\Traits\GeneratesSlug;
 
 class City extends Model
 {
-    use HasFactory;
+    use HasFactory, GeneratesSlug;
 
     /**
      * الحقول التي يمكن تعبئتها جماعياً
@@ -17,7 +17,8 @@ class City extends Model
     protected $fillable = [
         'name',
         'slug',
-        'country_id'
+        'country_id',
+        'delivery_cost',
     ];
 
     /**
@@ -27,16 +28,8 @@ class City extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'delivery_cost' => 'decimal:2',
     ];
-
-    /**
-     * تحويل الـ slug إلى الصيغة المناسبة قبل الحفظ
-     * @param string $value
-     */
-    public function setSlugAttribute($value)
-    {
-        $this->attributes['slug'] = Str::slug($value, '-');
-    }
 
     /**
      * علاقة المدينة بالدولة
