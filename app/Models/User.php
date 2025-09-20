@@ -87,11 +87,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function permissions()
     {
-        return $this->belongsToMany(Permission::class);
+        // direct permissions with pivot 'effect' (allow/deny)
+        return $this->belongsToMany(Permission::class)
+            ->withPivot('effect')
+            ->withTimestamps();
     }
 
     /**
      * Check if the user has a specific permission.
+     *
+     * Uses a versioned cache key so we can invalidate all keys by bumping the version.
      *
      * @param string $key
      * @return bool
@@ -102,13 +107,30 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
-        return Cache::remember("user.{$this->id}.permission.{$key}", 3600, function () use ($key) {
-            // Check direct permissions
-            if ($this->permissions->contains('key', $key)) {
+        $version = Cache::get("user.{$this->id}.perm_version", 1);
+        $cacheKey = "user.{$this->id}.permission.v{$version}.{$key}";
+
+        return Cache::remember($cacheKey, 600, function () use ($key) {
+            // Avoid N+1 by ensuring relations are loaded once
+            $this->loadMissing(['permissions', 'roles.permissions']);
+
+            // 1) Direct DENY overrides everything
+            $directDeny = $this->permissions->first(function ($p) use ($key) {
+                return $p->key === $key && optional($p->pivot)->effect === 'deny';
+            });
+            if ($directDeny) {
+                return false;
+            }
+
+            // 2) Direct ALLOW
+            $directAllow = $this->permissions->first(function ($p) use ($key) {
+                return $p->key === $key && optional($p->pivot)->effect !== 'deny';
+            });
+            if ($directAllow) {
                 return true;
             }
 
-            // Check permissions through roles
+            // 3) Role-based permissions
             foreach ($this->roles as $role) {
                 if ($role->permissions->contains('key', $key)) {
                     return true;
@@ -117,6 +139,36 @@ class User extends Authenticatable implements MustVerifyEmail
 
             return false;
         });
+    }
+
+    /**
+     * Grant a direct permission to the user.
+     */
+    public function allowPermission(int|Permission $permission): void
+    {
+        $permissionId = $permission instanceof Permission ? $permission->id : $permission;
+        $this->permissions()->syncWithoutDetaching([$permissionId => ['effect' => 'allow']]);
+        $this->clearPermissionsCache();
+    }
+
+    /**
+     * Explicitly deny a permission to the user.
+     */
+    public function denyPermission(int|Permission $permission): void
+    {
+        $permissionId = $permission instanceof Permission ? $permission->id : $permission;
+        $this->permissions()->syncWithoutDetaching([$permissionId => ['effect' => 'deny']]);
+        $this->clearPermissionsCache();
+    }
+
+    /**
+     * Remove any direct assignment (allow/deny) for a permission from the user.
+     */
+    public function revokeDirectPermission(int|Permission $permission): void
+    {
+        $permissionId = $permission instanceof Permission ? $permission->id : $permission;
+        $this->permissions()->detach($permissionId);
+        $this->clearPermissionsCache();
     }
 
     /**
@@ -254,16 +306,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * مسح الصلاحيات المخزنة مؤقتاً
+     * - نزيد رقم إصدار الكاش بدل حذف مفاتيح متعددة
      * @return void
      */
     public function clearPermissionsCache()
     {
-        Cache::forget("user.{$this->id}.permissions");
-        foreach ($this->roles as $role) {
-            foreach ($role->permissions as $permission) {
-                Cache::forget("user.{$this->id}.permission.{$permission->key}");
-            }
-        }
+        $version = Cache::get("user.{$this->id}.perm_version", 1);
+        Cache::forever("user.{$this->id}.perm_version", $version + 1);
     }
 
     /**

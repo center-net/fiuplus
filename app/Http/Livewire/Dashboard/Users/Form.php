@@ -6,13 +6,14 @@ use App\Models\Role;
 use App\Models\User;
 use App\Traits\HasLocationLogic;
 use Livewire\Component;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Form extends Component
 {
-    use WithFileUploads, HasLocationLogic;
+    use WithFileUploads, HasLocationLogic, AuthorizesRequests;
 
     public $user_id;
     public $name;
@@ -33,10 +34,13 @@ class Form extends Component
 
     public function mount()
     {
-        $this->loadCountries();
-        $this->roles = Role::all();
+        // Authorization: creating new user or updating existing one via modal logic happens later, but component requires base access
+        $this->authorize('viewAny', User::class);
 
-        $defaultRole = Role::where('name', 'user')->first();
+        $this->loadCountries();
+        $this->roles = Role::select('id','name','key','color')->get();
+
+        $defaultRole = Role::where('key', 'user')->first();
         if ($defaultRole) {
             $this->defaultRoleId = $defaultRole->id;
             $this->selectedRoles = [$this->defaultRoleId];
@@ -78,7 +82,7 @@ class Form extends Component
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user_id)],
             'phone' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($this->user_id)],
             'password' => $this->user_id ? 'nullable|string|min:8' : 'required|string|min:8',
-            'avatar' => 'nullable|image|max:1024', // Max 1MB
+            'avatar' => 'nullable|image|mimes:jpeg,png,webp,avif|max:2048', // Max 2MB with explicit mimes
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
             'village_id' => 'nullable|exists:villages,id',
@@ -91,22 +95,31 @@ class Form extends Component
     {
         $validatedData = $this->validate();
 
-        // Handle file upload
+        // Handle file upload (store first to set path)
         if ($this->avatar && !is_string($this->avatar)) {
             $validatedData['avatar'] = $this->avatar->store('users/avatars', 'public');
         }
 
         if ($this->user_id) {
             $user = User::findOrFail($this->user_id);
+            $this->authorize('update', $user);
             
+            // Let model cast hash the password
             if ($this->password) {
-                $validatedData['password'] = Hash::make($this->password);
+                $validatedData['password'] = $this->password;
             } else {
                 unset($validatedData['password']); // Don't update password if it's empty
             }
 
+            $oldAvatar = $user->avatar ?? null;
             $user->update($validatedData);
             $user->roles()->sync($this->selectedRoles);
+            $user->clearPermissionsCache();
+
+            // Remove old avatar if changed
+            if (isset($validatedData['avatar']) && $oldAvatar && $oldAvatar !== $validatedData['avatar']) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
 
             $this->dispatch('show-toast', message: 'تم تحديث المستخدم بنجاح.');
         } else {
@@ -114,11 +127,15 @@ class Form extends Component
             if (empty($this->selectedRoles)) {
                 $this->selectedRoles = [$this->defaultRoleId];
             }
+            // Require create ability when adding new user
+            $this->authorize('create', User::class);
             
-            $validatedData['password'] = Hash::make($this->password);
+            // Let model cast hash the password
+            $validatedData['password'] = $this->password;
 
             $user = User::create($validatedData);
             $user->roles()->sync($this->selectedRoles);
+            $user->clearPermissionsCache();
 
             $this->dispatch('show-toast', message: 'تم اضافة المستخدم بنجاح.');
         }

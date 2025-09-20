@@ -42,18 +42,44 @@
 
                 <div class="mb-3">
                     <label class="form-label">الصلاحيات</label>
-                    <select class="form-select @error('selectedPermissions') is-invalid @enderror" multiple
-                        wire:model="selectedPermissions" size="10">
-                        @php($grouped = $permissions->groupBy('table_name'))
-                        @foreach ($grouped as $table => $perms)
-                            <optgroup label="{{ $table }}">
-                                @foreach ($perms as $perm)
-                                    <option value="{{ $perm->id }}">{{ $perm->name }} ({{ $perm->key }})
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                        @endforeach
-                    </select>
+                    <div class="row g-3">
+                            @php
+                                $grouped = $permissions->groupBy(fn($p) => $p->table_name ?? 'عام');
+                            @endphp
+                            @foreach($grouped as $group => $list)
+                                <div class="col-12">
+                                    <div class="border rounded p-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">{{ $group === 'عام' ? 'صلاحيات عامة' : 'صلاحيات: ' . $group }}</h6>
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    wire:click="$set('selectedPermissions', array_values(array_unique(array_merge((array)$selectedPermissions, {{ $list->pluck('id') }}->toArray()))))">
+                                                    تحديد الكل
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    wire:click="$set('selectedPermissions', array_values(array_diff((array)$selectedPermissions, {{ $list->pluck('id') }}->toArray())))">
+                                                    إلغاء الكل
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-2">
+                                            @foreach($list as $permission)
+                                                <div class="col">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" value="{{ $permission->id }}"
+                                                            id="perm-{{ $permission->id }}"
+                                                            wire:model.live="selectedPermissions">
+                                                        <label class="form-check-label" for="perm-{{ $permission->id }}">
+                                                            {{ $permission->name }}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     @error('selectedPermissions')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror

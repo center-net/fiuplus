@@ -21,24 +21,30 @@
                     الرئيسية
                 </a>
             </li>
+            @can('viewAny', \App\Models\User::class)
             <li>
                 <a href="{{ route('admin.users') }}" class="nav-link text-white {{ request()->is('*users') ? 'active' : '' }}">
                     <i class="fas fa-users me-2"></i>
                     المستخدمين
                 </a>
             </li>
+            @endcan
+            @can('viewAny', \App\Models\Role::class)
             <li>
                 <a href="{{ route('admin.roles') }}" class="nav-link text-white {{ request()->is('*roles') ? 'active' : '' }}">
                     <i class="fas fa-user-tag me-2"></i>
                     الأدوار
                 </a>
             </li>
+            @endcan
+            @can('viewAny', \App\Models\Permission::class)
             <li>
                 <a href="{{ route('admin.permissions') }}" class="nav-link text-white {{ request()->is('*permissions') ? 'active' : '' }}">
                     <i class="fas fa-user-shield me-2"></i>
                     الصلاحيات
                 </a>
             </li>
+            @endcan
             <li>
                 <a href="#" class="nav-link text-white">
                     <i class="fas fa-globe me-2"></i>

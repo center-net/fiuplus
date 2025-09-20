@@ -8,6 +8,8 @@ use Illuminate\Validation\Rule;
 
 class Form extends Component
 {
+    use \Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
     public $permission_id;
     public $name = '';
     public $key = '';
@@ -17,6 +19,8 @@ class Form extends Component
 
     public function mount()
     {
+        // Require at least listing permission to access the form component
+        $this->authorize('viewAny', Permission::class);
         $this->resetForm();
     }
 
@@ -27,9 +31,12 @@ class Form extends Component
 
         if ($permissionId) {
             $p = Permission::findOrFail($permissionId);
+            $this->authorize('update', $p);
             $this->name = $p->name;
             $this->key = $p->key;
             $this->table_name = $p->table_name;
+        } else {
+            $this->authorize('create', Permission::class);
         }
     }
 
@@ -48,9 +55,11 @@ class Form extends Component
 
         if ($this->permission_id) {
             $p = Permission::findOrFail($this->permission_id);
+            $this->authorize('update', $p);
             $p->update($data);
             $this->dispatch('show-toast', message: 'تم تحديث الصلاحية بنجاح.');
         } else {
+            $this->authorize('create', Permission::class);
             Permission::create($data);
             $this->dispatch('show-toast', message: 'تم اضافة الصلاحية بنجاح.');
         }

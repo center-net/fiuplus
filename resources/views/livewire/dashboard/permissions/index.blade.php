@@ -1,12 +1,12 @@
 <div>
-    @can('browse_permissions')
+    @can('viewAny', \App\Models\Permission::class)
     <div class="card">
         <div class="card-header">
             <div class="row mb-3 align-items-center">
                 <div class="col-md-6">
                     <h3>إدارة الصلاحيات</h3>
                 </div>
-                @can('add_permissions')
+                @can('create', \App\Models\Permission::class)
                 <div class="col-md-6 text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#permissionFormModal"
                         wire:click="$dispatch('openPermissionFormModal')">

@@ -1,12 +1,12 @@
 <div>
-    @can('browse_users')
+    @can('viewAny', \App\Models\User::class)
     <div class="card">
         <div class="card-header">
             <div class="row mb-3 align-items-center">
                 <div class="col-md-6">
                     <h3>ادارة المستخدمين</h3>
                 </div>
-                @can('add_users')
+                @can('create', \App\Models\User::class)
                 <div class="col-md-6 text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userFormModal"
                         wire:click="$dispatch('openUserFormModal')">
@@ -87,7 +87,7 @@
                                     <div class="btn-group btn-group-sm" role="group">
                                         @can('update', $user)
                                         <button class="btn btn-primary" wire:loading.attr="disabled"
-                                            wire:click="$dispatch('openUserFormModal', { userId: {{ $user->id }} })"
+                                            wire:click="$dispatch('openUserFormModal', [{{ $user->id }}])"
                                             data-bs-toggle="modal" data-bs-target="#userFormModal">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -97,6 +97,14 @@
                                             wire:click="delete({{ $user->id }})"
                                             onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا المستخدم؟');">
                                             <i class="fas fa-trash"></i>
+                                        </button>
+                                        @endcan
+                                        @can('addPermission', $user)
+                                        <button class="btn btn-secondary" wire:loading.attr="disabled"
+                                            wire:click="$dispatch('openUserPermissionsModal', [{{ $user->id }}])"
+                                            data-bs-toggle="modal" data-bs-target="#userPermissionsModal"
+                                            title="صلاحيات المستخدم المباشرة">
+                                            <i class="fas fa-key"></i>
                                         </button>
                                         @endcan
                                     </div>
@@ -126,10 +134,10 @@
     </div>
     @endcan
 
-    {{-- User Form Modal --}}
-    
-        <livewire:dashboard.users.form />
-   
+    {{-- User Modals --}}
+    <livewire:dashboard.users.form />
+    <livewire:dashboard.users.permissions />
+
     <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy"
         class="position-fixed bottom-0 end-0 m-3">
         <span class="badge bg-info">جاري التحديث...</span>

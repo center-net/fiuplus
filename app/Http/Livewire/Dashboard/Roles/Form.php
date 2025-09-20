@@ -6,9 +6,12 @@ use App\Models\Permission;
 use App\Models\Role;
 use Livewire\Component;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Form extends Component
 {
+    use AuthorizesRequests;
+
     public $role_id;
     public $name = '';
     public $key = '';
@@ -21,6 +24,8 @@ class Form extends Component
 
     public function mount()
     {
+        // Base access guard: must be able to view roles listing to use the form
+        $this->authorize('viewAny', Role::class);
         $this->permissions = Permission::orderBy('table_name')->orderBy('name')->get();
         $this->resetForm();
     }
@@ -32,10 +37,14 @@ class Form extends Component
 
         if ($roleId) {
             $role = Role::with('permissions')->findOrFail($roleId);
+            $this->authorize('update', $role);
             $this->name = $role->name;
             $this->key = $role->key;
             $this->color = $role->color;
             $this->selectedPermissions = $role->permissions->pluck('id')->toArray();
+        } else {
+            // Creating a new role requires create ability
+            $this->authorize('create', Role::class);
         }
     }
 
@@ -56,12 +65,20 @@ class Form extends Component
 
         if ($this->role_id) {
             $role = Role::findOrFail($this->role_id);
+            $this->authorize('update', $role);
             $role->update($data);
             $role->permissions()->sync($this->selectedPermissions);
+            // مسح كاش صلاحيات جميع المستخدمين المرتبطين بهذا الدور
+            $role->load('users');
+            foreach ($role->users as $u) {
+                $u->clearPermissionsCache();
+            }
             $this->dispatch('show-toast', message: 'تم تحديث الدور بنجاح.');
         } else {
+            $this->authorize('create', Role::class);
             $role = Role::create($data);
             $role->permissions()->sync($this->selectedPermissions);
+            // لا يوجد مستخدمون مرتبطون بعد، لكن نضمن تنظيف كاش أي مستخدم يضاف لاحقاً عبر حدث خارجي إن لزم
             $this->dispatch('show-toast', message: 'تم اضافة الدور بنجاح.');
         }
 

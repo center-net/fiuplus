@@ -37,11 +37,26 @@ class PermissionSeeder extends Seeder
             'table_name' => null,
         ]);
 
+        // Allow managing roles in UI
+        Permission::firstOrCreate([
+            'name'      => 'إدارة الأدوار',
+            'key'       => 'manage_roles',
+            'table_name' => null,
+        ]);
+
         Permission::generateFor('permissions');
         Permission::generateFor('roles');
         Permission::generateFor('countries');
         Permission::generateFor('cities');
         Permission::generateFor('users');
+
+        // صلاحية خاصة لإضافة صلاحيات مباشرة للمستخدم (مطابقة للسياسة UserPolicy@addPermission)
+        Permission::firstOrCreate([
+            'name' => 'إضافة صلاحيات مباشرة للمستخدمين',
+            'key' => 'addPermission_users',
+            'table_name' => 'users',
+        ]);
+
         Permission::generateFor('villages');
     }
 }

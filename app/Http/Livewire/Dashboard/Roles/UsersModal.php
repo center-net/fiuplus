@@ -4,9 +4,11 @@ namespace App\Http\Livewire\Dashboard\Roles;
 
 use App\Models\Role;
 use Livewire\Component;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UsersModal extends Component
 {
+    use AuthorizesRequests;
     public $roleId;
     public $roleName;
     public $users = [];
@@ -21,6 +23,8 @@ class UsersModal extends Component
 
         if ($roleId) {
             $role = Role::with('users')->findOrFail($roleId);
+            // Viewing users attached to a role requires read on roles
+            $this->authorize('view', $role);
             $this->roleName = $role->name;
             $this->users = $role->users;
         }

@@ -63,6 +63,11 @@ class UserPolicy
         return $user->hasPermission('forceDelete_users');
     }
 
+    public function addPermission(User $user, User $model): bool
+    {
+        return $user->hasPermission('addPermission_users');
+    }
+
     /**
      * Determine whether the user can update their own profile.
      */
