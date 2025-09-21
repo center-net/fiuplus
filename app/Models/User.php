@@ -10,11 +10,15 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
+use Astrotomic\Translatable\Translatable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, TranslatableContract
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Translatable;
 
+
+    public $translatedAttributes = ['name'];
     /**
      * The attributes that are mass assignable.
      *
@@ -25,7 +29,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
         'username',
@@ -333,13 +336,7 @@ class User extends Authenticatable implements MustVerifyEmail
             }
         });
 
-        // عند تحديث المستخدم
-        static::updated(function ($user) {
-            // إذا تم تغيير الدور أو الصلاحيات، نمسح الصلاحيات المخزنة مؤقتاً
-            if ($user->isDirty('roles')) {
-                $user->clearPermissionsCache();
-            }
-        });
+
     }
 
     /**
@@ -350,11 +347,13 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeSearch($query, $search)
     {
-        return $query->where(function ($query) use ($search) {
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+        return $query->where(function ($q) use ($search) {
+            $q->orWhere('username', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhereHas('translations', function ($t) use ($search) {
+                  $t->where('name', 'like', "%{$search}%");
+              });
         });
     }
 }

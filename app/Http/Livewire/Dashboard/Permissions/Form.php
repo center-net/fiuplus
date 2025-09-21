@@ -51,16 +51,26 @@ class Form extends Component
 
     public function save()
     {
-        $data = $this->validate();
+        $this->validate();
+        $locale = app()->getLocale();
 
         if ($this->permission_id) {
             $p = Permission::findOrFail($this->permission_id);
             $this->authorize('update', $p);
-            $p->update($data);
+            // حفظ الحقول الأساسية
+            $p->key = $this->key;
+            $p->save();
+            // حفظ حقول الترجمة
+            $p->translateOrNew($locale)->name = $this->name;
+            $p->translateOrNew($locale)->table_name = $this->table_name;
+            $p->save();
             $this->dispatch('show-toast', message: 'تم تحديث الصلاحية بنجاح.');
         } else {
             $this->authorize('create', Permission::class);
-            Permission::create($data);
+            $p = Permission::firstOrCreate(['key' => $this->key]);
+            $p->translateOrNew($locale)->name = $this->name;
+            $p->translateOrNew($locale)->table_name = $this->table_name;
+            $p->save();
             $this->dispatch('show-toast', message: 'تم اضافة الصلاحية بنجاح.');
         }
 

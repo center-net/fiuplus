@@ -4,31 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
+use Astrotomic\Translatable\Translatable;
 
-class Permission extends Model
+class Permission extends Model implements TranslatableContract
 {
-    use HasFactory;
+    use HasFactory, Translatable;
 
-    protected $fillable = ['name', 'key', 'table_name'];
+    public $translatedAttributes = ['name', 'table_name'];
+
+    protected $fillable = ['key'];
 
     public function roles()
     {
         return $this->belongsToMany(Role::class);
     }
 
-    public static function generateFor($table_name)
+    public static function generateFor(string $table): void
     {
-        self::firstOrCreate(['name' => 'تصفح ' . $table_name, 'key' => 'browse_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'قراءة ' . $table_name, 'key' => 'read_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'تعديل ' . $table_name, 'key' => 'edit_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'اضافة ' . $table_name, 'key' => 'add_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'حذف ' . $table_name, 'key' => 'delete_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'استرجاع ' . $table_name, 'key' => 'restore_' . $table_name, 'table_name' => $table_name]);
-        self::firstOrCreate(['name' => 'حذف نهائي ' . $table_name, 'key' => 'forceDelete_' . $table_name, 'table_name' => $table_name]);
+        $labels = [
+            'browse' => ['ar' => "تصفح {$table}", 'en' => "Browse {$table}"],
+            'read' => ['ar' => "قراءة {$table}", 'en' => "Read {$table}"],
+            'edit' => ['ar' => "تعديل {$table}", 'en' => "Edit {$table}"],
+            'add' => ['ar' => "اضافة {$table}", 'en' => "Add {$table}"],
+            'delete' => ['ar' => "حذف {$table}", 'en' => "Delete {$table}"],
+            'restore' => ['ar' => "استرجاع {$table}", 'en' => "Restore {$table}"],
+            'forceDelete' => ['ar' => "حذف نهائي {$table}", 'en' => "Force delete {$table}"],
+        ];
+
+        $createOne = function (string $key, array $labelByLocale) use ($table) {
+            $perm = self::firstOrCreate(['key' => $key]);
+            foreach (['ar', 'en'] as $loc) {
+                $perm->translateOrNew($loc)->name = $labelByLocale[$loc] ?? $labelByLocale['ar'];
+                $perm->translateOrNew($loc)->table_name = $table;
+            }
+            $perm->save();
+        };
+
+        $createOne("browse_{$table}", $labels['browse']);
+        $createOne("read_{$table}", $labels['read']);
+        $createOne("edit_{$table}", $labels['edit']);
+        $createOne("add_{$table}", $labels['add']);
+        $createOne("delete_{$table}", $labels['delete']);
+        $createOne("restore_{$table}", $labels['restore']);
+        $createOne("forceDelete_{$table}", $labels['forceDelete']);
     }
 
-    public static function removeFrom($table_name)
+    public static function removeFrom(string $table): void
     {
-        self::where(['table_name' => $table_name])->delete();
+        self::whereHas('translations', function ($q) use ($table) {
+            $q->where('table_name', $table);
+        })->delete();
     }
 }

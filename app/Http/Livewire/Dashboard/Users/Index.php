@@ -51,13 +51,26 @@ class Index extends Component
         $this->loadCities($this->country_id);
         $this->loadVillages($this->city_id);
 
+        $sortBy = $this->sortBy;
+        $sortDirection = $this->sortDirection;
+        $locale = app()->getLocale();
+
         $users = User::query()
             ->with(['country', 'city', 'village', 'roles'])
             ->when($this->search, fn($q) => $q->search($this->search))
             ->when($this->country_id, fn($q) => $q->where('country_id', $this->country_id))
             ->when($this->city_id, fn($q) => $q->where('city_id', $this->city_id))
             ->when($this->village_id, fn($q) => $q->where('village_id', $this->village_id))
-            ->orderBy($this->sortBy, $this->sortDirection)
+            ->when($sortBy === 'name', function ($q) use ($locale, $sortDirection) {
+                $q->leftJoin('user_translations as ut', function ($join) use ($locale) {
+                    $join->on('ut.user_id', '=', 'users.id')
+                        ->where('ut.locale', '=', $locale);
+                })
+                ->select('users.*')
+                ->orderBy('ut.name', $sortDirection);
+            }, function ($q) use ($sortBy, $sortDirection) {
+                $q->orderBy($sortBy, $sortDirection);
+            })
             ->paginate($this->perPage);
 
         return view('livewire.dashboard.users.index', compact('users'))

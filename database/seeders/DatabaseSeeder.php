@@ -27,25 +27,28 @@ class DatabaseSeeder extends Seeder
 
         // في بيئة التطوير فقط: إنشاء بيانات عشوائية للاختبار
         if (app()->environment('local')) {
-            // إنشاء مستخدم مدير النظام
-            \App\Models\User::factory()->withRole('administrator')->create([
+            // إنشاء مستخدم مدير النظام (الاسم عبر الترجمة)
+            /** @var \App\Models\User $admin */
+            $admin = \App\Models\User::factory()->withRole('administrator')->create([
                 'password' => bcrypt('123123'), // كلمة المرور: 123123
                 'avatar' => 'images/users/default.png',
                 'email_verified_at' => now(),
                 'last_seen' => now(),
                 'username' => 'admin',
-                'name' => 'مدير النظام',
                 'email' => 'admin@example.com',
                 'phone' => '+970599999999', // رقم هاتف افتراضي للمدير
             ]);
+            $admin->translateOrNew('ar')->name = 'مدير النظام';
+            $admin->translateOrNew('en')->name = 'Administrator';
+            $admin->save();
 
             // إنشاء مستخدمين عشوائيين (سيتم تعيين دور 'user' لهم تلقائياً عبر الفاكتوري)
-            $country = \App\Models\Country::where('slug', 'PS')->first()->id;
-            $city = \App\Models\City::where('slug', 'al-quds')->first()->id;
+            $countryId = optional(\App\Models\Country::where('slug', 'PS')->first())->id;
+            $cityId = optional(\App\Models\City::where('slug', 'al-quds')->first())->id;
             
             \App\Models\User::factory(10)->create([
-                'country_id' => $country,
-                'city_id' => $city
+                'country_id' => $countryId,
+                'city_id' => $cityId
             ]);
         }
     }

@@ -38,7 +38,7 @@ class Form extends Component
         if ($villageId) {
             $village = Village::findOrFail($villageId);
             $this->authorize('update', $village);
-            $this->name = $village->name;
+            $this->name = $village->name; // from translations via accessor
             $this->slug = $village->slug;
             $this->city_id = $village->city_id;
             $this->country_id = optional($village->city)->country_id;
@@ -49,9 +49,25 @@ class Form extends Component
 
     protected function rules()
     {
+        $locale = app()->getLocale();
+
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('villages')->ignore($this->village_id)],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('villages')->ignore($this->village_id)->where(fn($q) => $q->where('city_id', $this->city_id))],
+            // Validate translated name uniqueness per locale (ignore current village by village_id)
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('village_translations', 'name')
+                    ->ignore($this->village_id, 'village_id')
+                    ->where(fn($q) => $q->where('locale', $locale))
+            ],
+
+            // Slug unique within the same city on base villages table
+            'slug' => [
+                'required', 'string', 'max:255',
+                Rule::unique('villages', 'slug')
+                    ->ignore($this->village_id)
+                    ->where(fn($q) => $q->where('city_id', $this->city_id))
+            ],
+
             'country_id' => ['required', 'exists:countries,id'],
             'city_id' => ['required', 'exists:cities,id'],
         ];
@@ -84,15 +100,30 @@ class Form extends Component
     public function save()
     {
         $data = $this->validate();
+        $locale = app()->getLocale();
 
         if ($this->village_id) {
             $village = Village::findOrFail($this->village_id);
             $this->authorize('update', $village);
-            $village->update($data);
+            // Update base fields only
+            $village->update([
+                'slug' => $data['slug'],
+                'city_id' => $this->city_id,
+            ]);
+            // Save translated name
+            $village->translateOrNew($locale)->name = $data['name'];
+            $village->save();
             $this->dispatch('show-toast', message: 'تم تحديث القرية بنجاح.');
         } else {
             $this->authorize('create', Village::class);
-            Village::create($data);
+            // Create base village without name
+            $village = Village::create([
+                'slug' => $data['slug'],
+                'city_id' => $this->city_id,
+            ]);
+            // Save translated name
+            $village->translateOrNew($locale)->name = $data['name'];
+            $village->save();
             $this->dispatch('show-toast', message: 'تم اضافة القرية بنجاح.');
         }
 
@@ -120,13 +151,32 @@ class Form extends Component
 
     public function render()
     {
-        $countries = Country::orderBy('name')->get(['id','name']);
-        $cities = [];
+        $locale = app()->getLocale();
+
+        $countries = Country::query()
+            ->leftJoin('country_translations as cnt', function ($join) use ($locale) {
+                $join->on('cnt.country_id', '=', 'countries.id')
+                     ->where('cnt.locale', '=', $locale);
+            })
+            ->select('countries.id', 'cnt.name as name')
+            ->orderByRaw('CASE WHEN cnt.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('cnt.name')
+            ->get();
+
+        $cities = collect();
         if ($this->country_id) {
-            $cities = City::where('country_id', $this->country_id)
-                ->orderBy('name')
-                ->get(['id','name']);
+            $cities = City::query()
+                ->where('country_id', $this->country_id)
+                ->leftJoin('city_translations as ct', function ($join) use ($locale) {
+                    $join->on('ct.city_id', '=', 'cities.id')
+                         ->where('ct.locale', '=', $locale);
+                })
+                ->select('cities.id', 'ct.name as name')
+                ->orderByRaw('CASE WHEN ct.name IS NULL THEN 0 ELSE 1 END')
+                ->orderBy('ct.name')
+                ->get();
         }
+
         return view('livewire.dashboard.villages.form', compact('countries','cities'));
     }
 }

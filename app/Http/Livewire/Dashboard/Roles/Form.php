@@ -26,7 +26,18 @@ class Form extends Component
     {
         // Base access guard: must be able to view roles listing to use the form
         $this->authorize('viewAny', Role::class);
-        $this->permissions = Permission::orderBy('table_name')->orderBy('name')->get();
+        $locale = app()->getLocale();
+        $this->permissions = Permission::query()
+            ->leftJoin('permission_translations as pt', function ($join) use ($locale) {
+                $join->on('pt.permission_id', '=', 'permissions.id')
+                     ->where('pt.locale', '=', $locale);
+            })
+            ->select('permissions.*')
+            ->with('translations')
+            ->orderByRaw('CASE WHEN pt.table_name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('pt.table_name')
+            ->orderBy('pt.name')
+            ->get();
         $this->resetForm();
     }
 
@@ -62,11 +73,19 @@ class Form extends Component
     public function save()
     {
         $data = $this->validate();
+        $locale = app()->getLocale();
 
         if ($this->role_id) {
             $role = Role::findOrFail($this->role_id);
             $this->authorize('update', $role);
-            $role->update($data);
+            // تحديث الحقول الأساسية فقط
+            $role->key = $data['key'];
+            $role->color = $data['color'] ?? null;
+            $role->save();
+            // حفظ الترجمة للاسم
+            $role->translateOrNew($locale)->name = $data['name'];
+            $role->save();
+
             $role->permissions()->sync($this->selectedPermissions);
             // مسح كاش صلاحيات جميع المستخدمين المرتبطين بهذا الدور
             $role->load('users');
@@ -76,9 +95,13 @@ class Form extends Component
             $this->dispatch('show-toast', message: 'تم تحديث الدور بنجاح.');
         } else {
             $this->authorize('create', Role::class);
-            $role = Role::create($data);
+            $role = Role::create([
+                'key' => $data['key'],
+                'color' => $data['color'] ?? null,
+            ]);
+            $role->translateOrNew($locale)->name = $data['name'];
+            $role->save();
             $role->permissions()->sync($this->selectedPermissions);
-            // لا يوجد مستخدمون مرتبطون بعد، لكن نضمن تنظيف كاش أي مستخدم يضاف لاحقاً عبر حدث خارجي إن لزم
             $this->dispatch('show-toast', message: 'تم اضافة الدور بنجاح.');
         }
 

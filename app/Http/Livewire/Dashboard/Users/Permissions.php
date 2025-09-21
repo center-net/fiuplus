@@ -23,10 +23,19 @@ class Permissions extends Component
 
     public function mount()
     {
-        // Order: general (null table_name) first, then by table_name and name
-        $this->permissions = Permission::orderByRaw("CASE WHEN table_name IS NULL THEN 0 ELSE 1 END")
-            ->orderBy('table_name')
-            ->orderBy('name')
+        // Order by translation: general (null) first, then by table_name and name (current locale)
+        $locale = app()->getLocale();
+        $this->permissions = Permission::query()
+            ->with('translations')
+            ->leftJoin('permission_translations as pt', function ($join) use ($locale) {
+                $join->on('pt.permission_id', '=', 'permissions.id')
+                    ->where('pt.locale', '=', $locale);
+            })
+            ->select('permissions.*')
+            // Ensure null table_name (general) first, then by table_name and name
+            ->orderByRaw('CASE WHEN pt.table_name IS NULL THEN 0 ELSE 1 END ASC')
+            ->orderBy('pt.table_name')
+            ->orderBy('pt.name')
             ->get();
     }
 

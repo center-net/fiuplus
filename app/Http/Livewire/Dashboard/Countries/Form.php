@@ -36,7 +36,7 @@ class Form extends Component
         if ($countryId) {
             $country = Country::findOrFail($countryId);
             $this->authorize('update', $country);
-            $this->name = $country->name;
+            $this->name = $country->name; // from translations via accessor
             $this->slug = $country->slug;
             $this->iso3 = $country->iso3;
         } else {
@@ -46,10 +46,22 @@ class Form extends Component
 
     protected function rules()
     {
+        $locale = app()->getLocale();
+
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('countries')->ignore($this->country_id)],
-            'slug' => ['required', 'string', 'max:10', Rule::unique('countries')->ignore($this->country_id)],
-            'iso3' => ['required', 'string', 'size:3', Rule::unique('countries')->ignore($this->country_id)],
+            // Validate translated name uniqueness per locale (ignore current country by country_id)
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('country_translations', 'name')
+                    ->ignore($this->country_id, 'country_id')
+                    ->where(fn($q) => $q->where('locale', $locale))
+            ],
+
+            // Slug unique on base countries table
+            'slug' => ['required', 'string', 'max:10', Rule::unique('countries', 'slug')->ignore($this->country_id)],
+
+            // ISO3 unique on base countries table
+            'iso3' => ['required', 'string', 'size:3', Rule::unique('countries', 'iso3')->ignore($this->country_id)],
         ];
     }
 
@@ -90,15 +102,33 @@ class Form extends Component
     public function save()
     {
         $data = $this->validate();
+        $locale = app()->getLocale();
 
         if ($this->country_id) {
             $country = Country::findOrFail($this->country_id);
             $this->authorize('update', $country);
-            $country->update($data);
+
+            // Update base fields only
+            $country->update([
+                'slug' => $data['slug'],
+                'iso3' => $data['iso3'],
+            ]);
+            // Save translated name
+            $country->translateOrNew($locale)->name = $data['name'];
+            $country->save();
+
             $this->dispatch('show-toast', message: 'تم تحديث الدولة بنجاح.');
         } else {
             $this->authorize('create', Country::class);
-            Country::create($data);
+            // Create base country first (without name)
+            $country = Country::create([
+                'slug' => $data['slug'],
+                'iso3' => $data['iso3'],
+            ]);
+            // Save translated name
+            $country->translateOrNew($locale)->name = $data['name'];
+            $country->save();
+
             $this->dispatch('show-toast', message: 'تم اضافة الدولة بنجاح.');
         }
 

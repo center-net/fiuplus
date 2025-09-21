@@ -13,10 +13,15 @@ class CountrySeeder extends Seeder
      */
     public function run(): void
     {
-        Country::firstOrCreate([
-            'name' => 'دولة فلسطين',
-            'slug' => 'PS',
-            'iso3' => 'PSE',
-        ]);
+        // ابحث/أنشئ الدولة بالاعتماد على الحقول الأساسية فقط
+        $country = Country::firstOrCreate(
+            ['slug' => 'PS'],
+            ['iso3' => 'PSE']
+        );
+
+        // احفظ الاسم في جدول الترجمات (عربي + إنجليزي)
+        $country->translateOrNew('ar')->name = 'دولة فلسطين';
+        $country->translateOrNew('en')->name = 'State of Palestine';
+        $country->save();
     }
 }

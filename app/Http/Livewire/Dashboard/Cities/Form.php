@@ -37,7 +37,7 @@ class Form extends Component
         if ($cityId) {
             $city = City::findOrFail($cityId);
             $this->authorize('update', $city);
-            $this->name = $city->name;
+            $this->name = $city->name; // comes from translations via translatable trait accessor
             $this->slug = $city->slug;
             $this->country_id = $city->country_id;
             $this->delivery_cost = (string) ($city->delivery_cost ?? '0.00');
@@ -48,9 +48,25 @@ class Form extends Component
 
     protected function rules()
     {
+        $locale = app()->getLocale();
+
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('cities')->ignore($this->city_id)],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('cities')->ignore($this->city_id)->where(fn($q) => $q->where('country_id', $this->country_id))],
+            // Validate translated name uniqueness per locale (ignore current city by city_id)
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('city_translations', 'name')
+                    ->ignore($this->city_id, 'city_id')
+                    ->where(fn($q) => $q->where('locale', $locale))
+            ],
+
+            // Slug unique within the same country on base cities table
+            'slug' => [
+                'required', 'string', 'max:255',
+                Rule::unique('cities', 'slug')
+                    ->ignore($this->city_id)
+                    ->where(fn($q) => $q->where('country_id', $this->country_id))
+            ],
+
             'country_id' => ['required', 'exists:countries,id'],
             'delivery_cost' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
         ];
@@ -83,16 +99,33 @@ class Form extends Component
     public function save()
     {
         $data = $this->validate();
+        $locale = app()->getLocale();
 
         if ($this->city_id) {
             $city = City::findOrFail($this->city_id);
             $this->authorize('update', $city);
-            $city->update($data);
+            // Update base fields only
+            $city->update([
+                'slug' => $data['slug'],
+                'country_id' => $this->country_id,
+                'delivery_cost' => $data['delivery_cost'],
+            ]);
+            // Save translated name
+            $city->translateOrNew($locale)->name = $data['name'];
+            $city->save();
             $city->refresh();
             $this->dispatch('show-toast', message: 'تم تحديث المدينة بنجاح.');
         } else {
             $this->authorize('create', City::class);
-            City::create($data);
+            // Create base city without name
+            $city = City::create([
+                'slug' => $data['slug'],
+                'country_id' => $this->country_id,
+                'delivery_cost' => $data['delivery_cost'],
+            ]);
+            // Save translated name
+            $city->translateOrNew($locale)->name = $data['name'];
+            $city->save();
             $this->dispatch('show-toast', message: 'تم اضافة المدينة بنجاح.');
         }
 
@@ -114,7 +147,18 @@ class Form extends Component
 
     public function render()
     {
-        $countries = Country::orderBy('name')->get(['id','name']);
+        $locale = app()->getLocale();
+
+        $countries = Country::query()
+            ->leftJoin('country_translations as cnt', function ($join) use ($locale) {
+                $join->on('cnt.country_id', '=', 'countries.id')
+                     ->where('cnt.locale', '=', $locale);
+            })
+            ->select('countries.id', 'cnt.name as name')
+            ->orderByRaw('CASE WHEN cnt.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('cnt.name')
+            ->get();
+
         return view('livewire.dashboard.cities.form', compact('countries'));
     }
 }

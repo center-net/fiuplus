@@ -4,24 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
+use Astrotomic\Translatable\Translatable;
 use App\Traits\GeneratesSlug;
 
-class Village extends Model
+class Village extends Model implements TranslatableContract
 {
-    use HasFactory, GeneratesSlug;
+    use HasFactory, GeneratesSlug, Translatable;
+
+    public $translatedAttributes = ['name'];
 
     /**
      * الحقول التي يمكن تعبئتها جماعياً
      * @var array<string>
      */
     protected $fillable = [
-        'name',
         'slug',
         'city_id',
-        'population',
-        'area',
-        'latitude',
-        'longitude'
     ];
 
     /**
@@ -95,8 +94,12 @@ class Village extends Model
      */
     public function scopeSearch($query, $search)
     {
-        return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%");
+        return $query->where(function ($q) use ($search) {
+            $q->orWhere('slug', 'like', "%{$search}%")
+              ->orWhereHas('translations', function ($t) use ($search) {
+                  $t->where('name', 'like', "%{$search}%");
+              });
+        });
     }
 
     /**

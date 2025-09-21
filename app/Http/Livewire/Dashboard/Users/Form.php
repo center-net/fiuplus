@@ -38,7 +38,14 @@ class Form extends Component
         $this->authorize('viewAny', User::class);
 
         $this->loadCountries();
-        $this->roles = Role::select('id','name','key','color')->get();
+        $locale = app()->getLocale();
+        $this->roles = Role::query()
+            ->leftJoin('role_translations as rt', function ($join) use ($locale) {
+                $join->on('rt.role_id', '=', 'roles.id')
+                    ->where('rt.locale', '=', $locale);
+            })
+            ->select('roles.id', 'roles.key', 'roles.color', 'rt.name as name')
+            ->get();
 
         $defaultRole = Role::where('key', 'user')->first();
         if ($defaultRole) {
@@ -94,11 +101,15 @@ class Form extends Component
     public function save()
     {
         $validatedData = $this->validate();
+        $locale = app()->getLocale();
 
         // Handle file upload (store first to set path)
         if ($this->avatar && !is_string($this->avatar)) {
             $validatedData['avatar'] = $this->avatar->store('users/avatars', 'public');
         }
+
+        // 'name' is translatable; remove from base payload and save via translations API
+        unset($validatedData['name']);
 
         if ($this->user_id) {
             $user = User::findOrFail($this->user_id);
@@ -113,6 +124,10 @@ class Form extends Component
 
             $oldAvatar = $user->avatar ?? null;
             $user->update($validatedData);
+            // Save translated name
+            $user->translateOrNew($locale)->name = $this->name;
+            $user->save();
+
             $user->roles()->sync($this->selectedRoles);
             $user->clearPermissionsCache();
 
@@ -134,6 +149,10 @@ class Form extends Component
             $validatedData['password'] = $this->password;
 
             $user = User::create($validatedData);
+            // Save translated name
+            $user->translateOrNew($locale)->name = $this->name;
+            $user->save();
+
             $user->roles()->sync($this->selectedRoles);
             $user->clearPermissionsCache();
 

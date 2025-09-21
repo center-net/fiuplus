@@ -40,7 +40,9 @@ class Index extends Component
     {
         $this->authorize('viewAny', Village::class);
 
-        $villages = Village::query()
+        $locale = app()->getLocale();
+
+        $query = Village::query()
             ->with(['city.country'])
             ->when($this->cityId, fn($q) => $q->byCity($this->cityId))
             ->when(!$this->cityId && $this->countryId, function ($q) {
@@ -48,12 +50,42 @@ class Index extends Component
             })
             ->when($this->search, function ($q) {
                 $q->search($this->search);
-            })
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+            });
 
-        $countries = Country::orderBy('name')->get(['id','name']);
-        $cities = $this->countryId ? City::byCountry($this->countryId)->orderBy('name')->get(['id','name']) : collect();
+        if ($this->sortBy === 'name') {
+            $query->leftJoin('village_translations as vt', function ($join) use ($locale) {
+                    $join->on('vt.village_id', '=', 'villages.id')
+                         ->where('vt.locale', '=', $locale);
+                })
+                ->select('villages.*')
+                ->orderByRaw('CASE WHEN vt.name IS NULL THEN 0 ELSE 1 END')
+                ->orderBy('vt.name', $this->sortDirection);
+        } else {
+            $query->orderBy($this->sortBy, $this->sortDirection);
+        }
+
+        $villages = $query->paginate($this->perPage);
+
+        $countries = Country::query()
+            ->leftJoin('country_translations as cnt', function ($join) use ($locale) {
+                $join->on('cnt.country_id', '=', 'countries.id')
+                     ->where('cnt.locale', '=', $locale);
+            })
+            ->select('countries.id', 'cnt.name as name')
+            ->orderByRaw('CASE WHEN cnt.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('cnt.name')
+            ->get();
+
+        $cities = $this->countryId ? City::query()
+            ->byCountry($this->countryId)
+            ->leftJoin('city_translations as ct', function ($join) use ($locale) {
+                $join->on('ct.city_id', '=', 'cities.id')
+                     ->where('ct.locale', '=', $locale);
+            })
+            ->select('cities.id', 'ct.name as name')
+            ->orderByRaw('CASE WHEN ct.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('ct.name')
+            ->get() : collect();
 
         return view('livewire.dashboard.villages.index', compact('villages','countries','cities'))
             ->layout('layouts.app', ['title' => 'القرى']);

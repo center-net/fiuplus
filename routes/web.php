@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Livewire;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Dashboard\Dashboard;
 use App\Http\Livewire\Dashboard\Users\Index as UsersIndex;
@@ -23,29 +25,46 @@ use App\Http\Livewire\Auth\Login;
 |
 */
 
-// Authentication Routes
-Route::middleware('guest')->group(function () {
-    Route::get('login', Login::class)->name('login');
-    // Route::get('register', Register::class)->name('register');
-});
 
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-    return redirect('/');
-})->name('logout')->middleware('auth');
+Route::group(
+    [
+        'prefix' => LaravelLocalization::setLocale(),
+        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+    ],
+    function () {
+             Livewire::setUpdateRoute(function ($handle) {
+            return Route::post('/livewire/update', $handle);
+        });
+
+        // Authentication Routes
+        Route::middleware('guest')->group(function () {
+            Route::get('login', Login::class)->name('login');
+            // Route::get('register', Register::class)->name('register');
+        });
+
+        Route::post('/logout', function () {
+            Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+            return redirect('/');
+        })->name('logout')->middleware('auth');
 
 
-// Authenticated Routes
-Route::middleware('auth')->group(function () {
-    Route::get('/', Dashboard::class)->name('admin.dashboard');
-    Route::get('/users', UsersIndex::class)->name('admin.users');
-    Route::get('/roles', RolesIndex::class)->name('admin.roles');
-    Route::get('/permissions', PermissionsIndex::class)->name('admin.permissions');
+        // Authenticated Routes
+        Route::middleware('auth')->group(function () {
+            Route::get('/', Dashboard::class)->name('admin.dashboard');
+            Route::get('/users', UsersIndex::class)->name('admin.users');
+            Route::get('/roles', RolesIndex::class)->name('admin.roles');
+            Route::get('/permissions', PermissionsIndex::class)->name('admin.permissions');
 
-    // Locations Management
-    Route::get('/countries', CountriesIndex::class)->name('admin.countries');
-    Route::get('/cities', CitiesIndex::class)->name('admin.cities');
-    Route::get('/villages', VillagesIndex::class)->name('admin.villages');
-});
+            // Locations Management
+            Route::get('/countries', CountriesIndex::class)->name('admin.countries');
+            Route::get('/cities', CitiesIndex::class)->name('admin.cities');
+            Route::get('/villages', VillagesIndex::class)->name('admin.villages');
+        });
+   
+    }
+);
+
+
+    

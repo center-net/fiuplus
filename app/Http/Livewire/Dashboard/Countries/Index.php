@@ -34,13 +34,30 @@ class Index extends Component
     {
         $this->authorize('viewAny', Country::class);
 
-        $countries = Country::query()
-            ->withCount(['cities', 'villages'])
+        $locale = app()->getLocale();
+
+        $query = Country::query()
             ->when($this->search, function ($q) {
                 $q->search($this->search);
+            });
+
+        if ($this->sortBy === 'name') {
+            // Translation-aware ordering by country name (null-first), then add counts AFTER select to preserve them
+            $query->leftJoin('country_translations as ct', function ($join) use ($locale) {
+                $join->on('ct.country_id', '=', 'countries.id')
+                     ->where('ct.locale', '=', $locale);
             })
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+            ->select('countries.*')
+            ->withCount(['cities', 'villages'])
+            ->orderByRaw('CASE WHEN ct.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('ct.name', $this->sortDirection);
+        } else {
+            // When sorting by counts or base fields, ensure counts exist BEFORE ordering by them
+            $query->withCount(['cities', 'villages'])
+                  ->orderBy($this->sortBy, $this->sortDirection);
+        }
+
+        $countries = $query->paginate($this->perPage);
 
         return view('livewire.dashboard.countries.index', compact('countries'))
             ->layout('layouts.app', ['title' => 'الدول']);

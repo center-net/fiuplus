@@ -34,16 +34,33 @@ class Index extends Component
     {
         $this->authorize('viewAny', Role::class);
 
+        $locale = app()->getLocale();
+        $sortBy = $this->sortBy;
+        $sortDirection = $this->sortDirection;
+
         $roles = Role::query()
             ->with(['permissions'])
-            ->withCount('users')
-            ->when($this->search, function ($q) {
-                $q->where(function ($qq) {
-                    $qq->where('name', 'like', "%{$this->search}%")
-                       ->orWhere('key', 'like', "%{$this->search}%");
+            ->when($this->search, function ($q) use ($locale) {
+                $q->where(function ($qq) use ($locale) {
+                    $qq->orWhere('key', 'like', "%{$this->search}%")
+                       ->orWhereHas('translations', function ($t) use ($locale) {
+                           $t->where('locale', $locale)
+                             ->where('name', 'like', "%{$this->search}%");
+                       });
                 });
             })
-            ->orderBy($this->sortBy, $this->sortDirection)
+            ->when($sortBy === 'name', function ($q) use ($locale, $sortDirection) {
+                $q->leftJoin('role_translations as rt', function ($join) use ($locale) {
+                    $join->on('rt.role_id', '=', 'roles.id')
+                        ->where('rt.locale', '=', $locale);
+                })
+                ->select('roles.*')
+                ->orderByRaw('CASE WHEN rt.name IS NULL THEN 0 ELSE 1 END')
+                ->orderBy('rt.name', $sortDirection);
+            }, function ($q) use ($sortBy, $sortDirection) {
+                $q->orderBy($sortBy, $sortDirection);
+            })
+            ->withCount('users')
             ->paginate($this->perPage);
 
         return view('livewire.dashboard.roles.index', compact('roles'))

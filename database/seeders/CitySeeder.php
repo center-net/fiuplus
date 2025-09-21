@@ -49,17 +49,20 @@ class CitySeeder extends Seeder
             ['name' => 'تل السلطان', 'slug' => 'tal-al-sultan'],
         ];
 
-        foreach ($cities as $city) {
-            City::firstOrCreate(
+        foreach ($cities as $c) {
+            $model = City::firstOrCreate(
                 [
                     'country_id' => $palestine,
-                    'slug' => $city['slug'],
+                    'slug' => $c['slug'],
                 ],
                 [
-                    'name' => $city['name'],
                     'delivery_cost' => 0.00,
                 ]
             );
+            // حفظ الاسم في جدول الترجمات (عربي + إنجليزي)
+            $model->translateOrNew('ar')->name = $c['name'];
+            $model->translateOrNew('en')->name = ucfirst(str_replace('-', ' ', $c['slug']));
+            $model->save();
         }
     }
 }

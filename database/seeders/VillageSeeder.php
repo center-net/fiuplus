@@ -117,11 +117,14 @@ class VillageSeeder extends Seeder
         foreach ($villages as $village) {
             $city = City::where('slug', $village['city'])->first();
             if ($city) {
-                Village::firstOrCreate([
+                $model = Village::firstOrCreate([
                     'city_id' => $city->id,
-                    'name' => $village['name'],
                     'slug' => $village['slug']
                 ]);
+                // حفظ الاسم في جدول الترجمات (عربي + إنجليزي)
+                $model->translateOrNew('ar')->name = $village['name'];
+                $model->translateOrNew('en')->name = ucfirst(str_replace('-', ' ', $village['slug']));
+                $model->save();
             }
         }
     }

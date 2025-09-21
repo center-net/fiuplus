@@ -37,17 +37,41 @@ class Index extends Component
     {
         $this->authorize('viewAny', City::class);
 
-        $cities = City::query()
+        $locale = app()->getLocale();
+
+        $query = City::query()
             ->with(['country'])
-            ->withCount(['villages'])
             ->when($this->countryId, fn($q) => $q->byCountry($this->countryId))
             ->when($this->search, function ($q) {
                 $q->search($this->search);
-            })
-            ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate($this->perPage);
+            });
 
-        $countries = Country::orderBy('name')->get(['id','name']);
+        if ($this->sortBy === 'name') {
+            $query->leftJoin('city_translations as ct', function ($join) use ($locale) {
+                $join->on('ct.city_id', '=', 'cities.id')
+                     ->where('ct.locale', '=', $locale);
+            })
+            ->select('cities.*')
+            ->withCount(['villages'])
+            ->orderByRaw('CASE WHEN ct.name IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('ct.name', $this->sortDirection);
+        } else {
+            // When sorting by counts or base fields, ensure counts exist BEFORE ordering by them
+            $query->withCount(['villages'])
+                  ->orderBy($this->sortBy, $this->sortDirection);
+        }
+
+        $cities = $query->paginate($this->perPage);
+
+        // Countries dropdown: fetch translated names for active locale
+        $countries = Country::query()
+            ->leftJoin('country_translations as cnt', function ($join) use ($locale) {
+                $join->on('cnt.country_id', '=', 'countries.id')
+                     ->where('cnt.locale', '=', $locale);
+            })
+            ->select('countries.id', 'cnt.name as name')
+            ->orderBy('cnt.name')
+            ->get();
 
         return view('livewire.dashboard.cities.index', compact('cities','countries'))
             ->layout('layouts.app', ['title' => 'المدن']);

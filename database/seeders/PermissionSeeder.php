@@ -13,50 +13,53 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::firstOrCreate([
-            'name'      => 'تصفح لوحة الإدارة',
-            'key'       => 'browse_admin',
-            'table_name' => null,
-        ]);
+        $defs = [
+            [
+                'key' => 'browse_admin',
+                'name' => ['ar' => 'تصفح لوحة الإدارة', 'en' => 'Browse Admin Panel'],
+                'table' => null
+            ],
+            [
+                'key' => 'administrator',
+                'name' => ['ar' => 'مدير النظام', 'en' => 'Administrator'],
+                'table' => null
+            ],
+            [
+                'key' => 'manager',
+                'name' => ['ar' => 'مدير', 'en' => 'Manager'],
+                'table' => null
+            ],
+            [
+                'key' => 'banned',
+                'name' => ['ar' => 'محظور', 'en' => 'Banned'],
+                'table' => null
+            ],
+            [
+                'key' => 'manage_roles',
+                'name' => ['ar' => 'إدارة الأدوار', 'en' => 'Manage roles'],
+                'table' => null
+            ],
+            [
+                'key' => 'addPermission_users',
+                'name' => ['ar' => 'إضافة صلاحيات مباشرة للمستخدمين', 'en' => 'Add direct permissions to users'],
+                'table' => 'users'
+            ],
+        ];
 
-        Permission::firstOrCreate([
-            'name'      => 'مدير النظام',
-            'key'       => 'administrator',
-            'table_name' => null,
-        ]);
-
-        Permission::firstOrCreate([
-            'name'      => 'مدير',
-            'key'       => 'manager',
-            'table_name' => null,
-        ]);
-
-        Permission::firstOrCreate([
-            'name'      => 'محظور',
-            'key'       => 'banned',
-            'table_name' => null,
-        ]);
-
-        // Allow managing roles in UI
-        Permission::firstOrCreate([
-            'name'      => 'إدارة الأدوار',
-            'key'       => 'manage_roles',
-            'table_name' => null,
-        ]);
+        foreach ($defs as $d) {
+            $perm = Permission::firstOrCreate(['key' => $d['key']]);
+            foreach (['ar', 'en'] as $loc) {
+                $perm->translateOrNew($loc)->name = $d['name'][$loc] ?? $d['name']['ar'];
+                $perm->translateOrNew($loc)->table_name = $d['table'];
+            }
+            $perm->save();
+        }
 
         Permission::generateFor('permissions');
         Permission::generateFor('roles');
         Permission::generateFor('countries');
         Permission::generateFor('cities');
         Permission::generateFor('users');
-
-        // صلاحية خاصة لإضافة صلاحيات مباشرة للمستخدم (مطابقة للسياسة UserPolicy@addPermission)
-        Permission::firstOrCreate([
-            'name' => 'إضافة صلاحيات مباشرة للمستخدمين',
-            'key' => 'addPermission_users',
-            'table_name' => 'users',
-        ]);
-
         Permission::generateFor('villages');
     }
 }

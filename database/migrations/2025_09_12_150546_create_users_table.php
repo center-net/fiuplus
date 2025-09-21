@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('password')->comment('كلمة المرور المشفرة');
             
             // المعلومات الشخصية
-            $table->string('name')->comment('الاسم الكامل');
             $table->string('avatar')->nullable()->comment('صورة المستخدم');
             $table->string('phone')->unique()->comment('رقم الهاتف');
             

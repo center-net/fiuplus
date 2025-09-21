@@ -17,13 +17,13 @@ class Index extends Component
     ];
 
     public string $search = '';
-    public string $sortBy = 'table_name';
+    public string $sortBy = 'key';
     public string $sortDirection = 'asc';
     public int $perPage = 10;
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'sortBy' => ['except' => 'table_name'],
+        'sortBy' => ['except' => 'key'],
         'sortDirection' => ['except' => 'asc'],
         'perPage' => ['except' => 10],
     ];
@@ -37,12 +37,27 @@ class Index extends Component
         $permissions = Permission::query()
             ->when($this->search, function ($q) {
                 $q->where(function ($qq) {
-                    $qq->where('name', 'like', "%{$this->search}%")
-                       ->orWhere('key', 'like', "%{$this->search}%")
-                       ->orWhere('table_name', 'like', "%{$this->search}%");
+                    $qq->where('key', 'like', "%{$this->search}%")
+                       ->orWhereHas('translations', function ($tt) {
+                           $tt->where('name', 'like', "%{$this->search}%")
+                              ->orWhere('table_name', 'like', "%{$this->search}%");
+                       });
                 });
             })
-            ->orderBy($this->sortBy, $this->sortDirection)
+            ->when(in_array($this->sortBy, ['key']), function ($q) {
+                $q->orderBy($this->sortBy, $this->sortDirection);
+            }, function ($q) {
+                // فرز حسب الترجمة: الجدول ثم الاسم
+                $q->with('translations')
+                  ->orderBy(Permission::select('permission_translations.table_name')
+                    ->whereColumn('permission_translations.permission_id', 'permissions.id')
+                    ->where('permission_translations.locale', app()->getLocale())
+                    ->limit(1), $this->sortDirection)
+                  ->orderBy(Permission::select('permission_translations.name')
+                    ->whereColumn('permission_translations.permission_id', 'permissions.id')
+                    ->where('permission_translations.locale', app()->getLocale())
+                    ->limit(1), $this->sortDirection);
+            })
             ->paginate($this->perPage);
 
         return view('livewire.dashboard.permissions.index', compact('permissions'))

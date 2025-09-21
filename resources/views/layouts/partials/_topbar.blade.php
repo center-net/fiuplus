@@ -12,13 +12,42 @@
         <div class="collapse navbar-collapse" id="topNavbar">
             <ul class="navbar-nav ms-auto">
                 @auth
+                    <li class="nav-item dropdown mx-2">
+                        <a class="nav-link dropdown-toggle position-relative" href="#" id="messagesDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ asset('images/Flag/' . LaravelLocalization::setLocale() . '.png') }}"
+                                class="img-fluid rounded-circle" alt="{{ LaravelLocalization::setLocale() }}"
+                                style="height: 30px; min-width: 30px; width: 30px;">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="messagesDropdown"
+                            style="width: 300px;">
+                            @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                                @if ($localeCode != LaravelLocalization::setLocale())
+                                    <li>
+                                        <a class="dropdown-item" rel="alternate" hreflang="{{ $localeCode }}"
+                                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ asset('images/Flag/' . $properties['flag'] . '.png') }}"
+                                                        width="32" height="32" class="rounded-circle"
+                                                        alt="{{ $properties['flag'] }}">
+                                                </div>
+                                                <div class="flex-grow-1 ms-2">
+                                                    <p class="mb-0">{{ $properties['native'] }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </li>
                     <livewire:layout.notifications-dropdown />
                     <livewire:layout.messages-dropdown />
 
                     <!-- User Dropdown -->
                     <li class="nav-item dropdown">
-                        <a href="#"
-                            class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                             id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ Auth::user()->getAvatarUrl() }}" alt="" width="32" height="32"
                                 class="rounded-circle me-2">

@@ -14,17 +14,48 @@ trait HasLocationLogic
 
     public function loadCountries()
     {
-        $this->countries = Country::orderBy('name')->get();
+        $locale = app()->getLocale();
+        $this->countries = Country::select('countries.*')
+            ->leftJoin('country_translations as ct', function ($join) use ($locale) {
+                $join->on('ct.country_id', '=', 'countries.id')
+                    ->where('ct.locale', '=', $locale);
+            })
+            ->orderBy('ct.name')
+            ->get();
     }
 
     public function loadCities($countryId)
     {
-        $this->cities = $countryId ? City::where('country_id', $countryId)->orderBy('name')->get() : collect();
+        if (!$countryId) {
+            $this->cities = collect();
+            return;
+        }
+        $locale = app()->getLocale();
+        $this->cities = City::select('cities.*')
+            ->where('country_id', $countryId)
+            ->leftJoin('city_translations as ct', function ($join) use ($locale) {
+                $join->on('ct.city_id', '=', 'cities.id')
+                    ->where('ct.locale', '=', $locale);
+            })
+            ->orderBy('ct.name')
+            ->get();
     }
 
     public function loadVillages($cityId)
     {
-        $this->villages = $cityId ? Village::where('city_id', $cityId)->orderBy('name')->get() : collect();
+        if (!$cityId) {
+            $this->villages = collect();
+            return;
+        }
+        $locale = app()->getLocale();
+        $this->villages = Village::select('villages.*')
+            ->where('city_id', $cityId)
+            ->leftJoin('village_translations as vt', function ($join) use ($locale) {
+                $join->on('vt.village_id', '=', 'villages.id')
+                    ->where('vt.locale', '=', $locale);
+            })
+            ->orderBy('vt.name')
+            ->get();
     }
 
     public function updatedCountryId($value)

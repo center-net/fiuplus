@@ -5,10 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\GeneratesSlug;
+use Astrotomic\Translatable\Contracts\Translatable as TranslatableContract;
+use Astrotomic\Translatable\Translatable;
 
-class Country extends Model
+class Country extends Model implements TranslatableContract
 {
-    use HasFactory, GeneratesSlug;
+    use HasFactory, GeneratesSlug, Translatable;
+
+    public $translatedAttributes = ['name'];
 
     /**
      * Override slug max length for countries (10 chars as required).
@@ -23,12 +27,8 @@ class Country extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'name',
         'slug',
         'iso3',
-        'calling_code',
-        'currency',
-        'flag'
     ];
 
     /**
@@ -104,9 +104,13 @@ class Country extends Model
      */
     public function scopeSearch($query, $search)
     {
-        return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('slug', 'like', "%{$search}%")
-                    ->orWhere('iso3', 'like', "%{$search}%");
+        return $query->where(function ($q) use ($search) {
+            $q->orWhere('slug', 'like', "%{$search}%")
+              ->orWhere('iso3', 'like', "%{$search}%")
+              ->orWhereHas('translations', function ($t) use ($search) {
+                  $t->where('name', 'like', "%{$search}%");
+              });
+        });
     }
 
     /**

@@ -14,40 +14,27 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-         
-        Role::firstOrCreate([
-            'name' => 'مدير النظام',
-            'key' => 'administrator',
-            'color' => 'bg-danger text-white',
-        ]);
+        $roles = [
+            ['key' => 'administrator', 'name' => ['ar' => 'مدير النظام', 'en' => 'Administrator'], 'color' => 'bg-danger text-white'],
+            ['key' => 'admin',         'name' => ['ar' => 'مدير',       'en' => 'Admin'],          'color' => 'bg-warning text-dark'],
+            ['key' => 'moderator',     'name' => ['ar' => 'مراقب',      'en' => 'Moderator'],      'color' => 'bg-success text-white'],
+            ['key' => 'user',          'name' => ['ar' => 'مستخدم',     'en' => 'User'],           'color' => 'bg-primary text-dark'],
+            ['key' => 'banned',        'name' => ['ar' => 'محظور',      'en' => 'Banned'],         'color' => 'bg-secondary text-white'],
+        ];
 
-        Role::firstOrCreate([
-            'name' => 'مدير',
-            'key' => 'admin',
-            'color' => 'bg-warning text-dark',
-        ]);
+        foreach ($roles as $r) {
+            $role = Role::firstOrCreate(['key' => $r['key']], ['color' => $r['color']]);
+            foreach (['ar', 'en'] as $loc) {
+                $role->translateOrNew($loc)->name = $r['name'][$loc] ?? $r['name']['ar'];
+            }
+            $role->save();
+        }
 
-        Role::firstOrCreate([
-            'name' => 'مراقب',
-            'key' => 'moderator',
-            'color' => 'bg-success text-white',
-        ]);
+        $permissionAdministrator = Permission::where('key','!=','banned')->pluck('id')->toArray();
 
-        Role::firstOrCreate([
-            'name' => 'مستخدم',
-            'key' => 'user',
-            'color' => 'bg-primary text-dark',
-        ]);
-
-        Role::firstOrCreate([
-            'name' => 'محظور',
-            'key' => 'banned',
-            'color' => 'bg-secondary text-white',
-        ]);
-
-        $permission_administrator = Permission::where('key','!=','banned')->pluck('id')->toArray();
-
-        $admin_role = Role::where('key','administrator')->first();
-        $admin_role->permissions()->sync($permission_administrator);
+        $adminRole = Role::where('key','administrator')->first();
+        if ($adminRole) {
+            $adminRole->permissions()->sync($permissionAdministrator);
+        }
     }
 }
