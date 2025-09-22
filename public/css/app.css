@@ -255,3 +255,31 @@ body {
     background-color: #dc3545!important;
     color: #fff;
 }
+
+/* LTR overrides: move sidebar to the left when dir="ltr" */
+html[dir="ltr"] .sidebar {
+    left: 0;
+    right: auto;
+}
+
+html[dir="ltr"] .main-wrapper {
+    margin-left: 280px;
+    margin-right: 0;
+}
+
+@media (max-width: 991.98px) {
+    html[dir="ltr"] .sidebar {
+        /* hide off-canvas to the left on mobile */
+        transform: translateX(-100%);
+    }
+    html[dir="ltr"] .sidebar.show {
+        transform: translateX(0);
+    }
+    html[dir="ltr"] .main-wrapper {
+        margin-left: 0;
+    }
+    html[dir="ltr"] #sidebarToggle {
+        left: 1rem;
+        right: auto;
+    }
+}
