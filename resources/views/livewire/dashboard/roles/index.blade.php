@@ -4,25 +4,25 @@
             <div class="card-header">
                 <div class="row mb-3 align-items-center">
                     <div class="col-md-6">
-                        <h3>إدارة الأدوار</h3>
+                        <h3>{{ __('app.roles_manage_title') }}</h3>
                     </div>
                     @can('create', \App\Models\Role::class)
                         <div class="col-md-6 text-end">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roleFormModal"
                                 wire:click="$dispatch('openRoleFormModal')">
-                                <i class="fas fa-plus ms-1"></i> اضافة دور جديد
+                                <i class="fas fa-plus ms-1"></i> {{ __('app.add_new_role') }}
                             </button>
                         </div>
                     @endcan
                 </div>
                 <div class="row g-2 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label">بحث</label>
+                        <label class="form-label">{{ __('app.search') }}</label>
                         <input wire:model.live.debounce.400ms="search" type="text" class="form-control"
                             placeholder="ابحث بالاسم أو المفتاح">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">صفحة</label>
+                        <label class="form-label">{{ __('app.page') }}</label>
                         <select wire:model.change="perPage" class="form-select">
                             <option value="10">10</option>
                             <option value="25">25</option>
@@ -37,16 +37,16 @@
                     <table class="table table-striped table-hover align-middle">
                         <thead>
                             <tr>
-                                <th wire:click="sort('name')" style="cursor: pointer;">الاسم
+                                <th wire:click="sort('name')" style="cursor: pointer;">{{ __('app.name') }}
                                     @if ($sortBy === 'name')
                                         <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                     @else
                                         <i class="fas fa-sort"></i>
                                     @endif
                                 </th>
-                                <th>الصلاحيات</th>
-                                <th class="text-center">المستخدمون</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th>{{ __('app.permissions_label') }}</th>
+                                <th class="text-center">{{ __('app.users_label') }}</th>
+                                <th class="text-center">{{ __('app.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,7 +80,7 @@
                                             @can('delete', $role)
                                                 <button class="btn btn-danger" wire:loading.attr="disabled"
                                                     wire:click="delete({{ $role->id }})"
-                                                    onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذا الدور؟');">
+                                                    onclick="return confirm('{{ __('app.confirm_delete_role') }}');">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endcan
@@ -89,7 +89,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">لا يوجد نتائج حسب التصفية الحالية</td>
+                                    <td colspan="6" class="text-center text-muted">{{ __('app.no_results') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -98,7 +98,7 @@
             </div>
             <div class="card-footer d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
-                    عرض {{ $roles->firstItem() }} - {{ $roles->lastItem() }} من {{ $roles->total() }}
+                    {{ __('app.showing_x_to_y_of_z', ['from' => $roles->firstItem(), 'to' => $roles->lastItem(), 'total' => $roles->total()]) }}
                 </div>
                 <div>
                     {{ $roles->onEachSide(1)->links() }}
@@ -106,7 +106,7 @@
             </div>
         </div>
     @else
-        <div class="alert alert-danger">ليس لديك الصلاحية لعرض هذه الصفحة.</div>
+        <div class="alert alert-danger">{{ __('app.unauthorized') }}</div>
     @endcan
 
     {{-- Role Form Modal --}}
@@ -114,12 +114,12 @@
         <livewire:dashboard.roles.form />
 
     <div wire:loading wire:target="search,perPage,sortBy" class="position-fixed bottom-0 end-0 m-3">
-        <span class="badge bg-info">جاري التحديث...</span>
+        <span class="badge bg-info">{{ __('app.updating') }}</span>
     </div>
 
 
     {{-- Users Modal --}}
-    <x-modal id="usersModal" size="modal-lg" title="المستخدمون">
+    <x-modal id="usersModal" size="modal-lg" title="{{ __('app.users_label') }}">
         <livewire:dashboard.roles.users-modal />
     </x-modal>
 </div>

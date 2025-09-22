@@ -1,10 +1,10 @@
 <div>
-    <x-modal id="countryFormModal" size="modal-lg" title="{{ $country_id ? 'تعديل دولة' : 'اضافة دولة جديدة' }}">
+    <x-modal id="countryFormModal" size="modal-lg" title="{{ $country_id ? __('app.edit_country') : __('app.add_new_country') }}">
         <div class="modal-body">
             <form wire:submit.prevent="save">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="name" class="form-label">الاسم</label>
+                        <label for="name" class="form-label">{{ __('app.name') }}</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
                             wire:model="name">
                         @error('name')

@@ -1,0 +1,146 @@
+<?php
+
+return [
+    // Generic actions
+    'save' => 'حفظ',
+    'cancel' => 'إلغاء',
+    'close' => 'إغلاق',
+    'delete' => 'حذف',
+    'edit' => 'تعديل',
+    'create' => 'إضافة',
+    'search' => 'بحث',
+    'all' => 'الكل',
+    'page' => 'صفحة',
+    'actions' => 'الإجراءات',
+    'details' => 'التفاصيل',
+    'name' => 'الاسم',
+    'country' => 'الدولة',
+    'city' => 'المدينة',
+    'village' => 'القرية',
+    'loading' => 'جاري التحميل...',
+    'updating' => 'جاري التحديث...',
+    'alert' => 'تنبيه',
+    'no_results' => 'لا يوجد نتائج حسب التصفية الحالية',
+    'unauthorized' => 'ليس لديك الصلاحية لعرض هذه الصفحة.',
+    'confirm_delete_village' => 'هل أنت متأكد من رغبتك في حذف هذه القرية؟',
+
+    // Notifications
+    'notifications' => 'الإشعارات',
+    'unread_notifications' => 'إشعارات غير مقروءة',
+    'view_all_notifications' => 'عرض كل الإشعارات',
+    'new_user_registered' => 'تم تسجيل مستخدم جديد',
+    'minutes_ago' => 'منذ :minutes دقائق',
+
+    // Messages
+    'messages' => 'الرسائل',
+    'unread_messages' => 'رسائل غير مقروءة',
+    'view_all_messages' => 'عرض كل الرسائل',
+    'profile' => 'الملف الشخصي',
+    'settings' => 'الإعدادات',
+    'logout' => 'تسجيل الخروج',
+    'login' => 'تسجيل الدخول',
+    'register' => 'تسجيل',
+    'user_image_alt' => 'صورة المستخدم',
+    'sample_user_name' => 'أحمد محمد',
+    'sample_message_greeting' => 'مرحباً، كيف حالك؟',
+
+    // Location Dropdowns
+    'choose_country' => 'اختر دولة',
+    'choose_city' => 'اختر مدينة',
+    'choose_village' => 'اختر قرية',
+
+    // Auth - Login
+    'login_title' => 'تسجيل الدخول',
+    'credential_label' => 'اسم المستخدم أو البريد الإلكتروني أو الهاتف',
+    'password_label' => 'كلمة المرور',
+    'remember_me' => 'تذكرني',
+    'login_submit' => 'تسجيل الدخول',
+    'signing_in' => 'جاري الدخول...',
+    'dont_have_account' => 'ليس لديك حساب؟',
+
+    // Dashboard - Villages
+    'villages_manage_title' => 'إدارة القرى',
+    'add_new_village' => 'اضافة قرية جديدة',
+    'search_placeholder' => 'ابحث بالاسم أو الرمز',
+    'choose_country_first' => 'اختر دولة أولاً',
+    'showing_x_to_y_of_z' => 'عرض :from - :to من :total',
+
+    // Sidebar
+    'home' => 'الرئيسية',
+    'users' => 'المستخدمين',
+    'roles' => 'الأدوار',
+    'permissions' => 'الصلاحيات',
+    'countries' => 'الدول',
+    'cities' => 'المدن',
+    'villages' => 'القرى',
+
+    // Dashboard - Countries
+    'countries_manage_title' => 'إدارة الدول',
+    'add_new_country' => 'اضافة دولة جديدة',
+    'edit_country' => 'تعديل دولة',
+    'confirm_delete_country' => 'هل أنت متأكد من رغبتك في حذف هذه الدولة؟',
+
+    // Dashboard - Cities
+    'cities_manage_title' => 'إدارة المدن',
+    'add_new_city' => 'اضافة مدينة جديدة',
+    'edit_city' => 'تعديل مدينة',
+    'confirm_delete_city' => 'هل أنت متأكد من رغبتك في حذف هذه المدينة؟',
+    'delivery_cost' => 'تكلفة التوصيل',
+    'currency_ils' => '₪',
+
+    // Dashboard - Permissions
+    'permissions_manage_title' => 'إدارة الصلاحيات',
+    'add_new_permission' => 'اضافة صلاحية جديدة',
+    'table' => 'الجدول',
+    'key_label' => 'المفتاح',
+    'table_name_label' => 'اسم الجدول',
+    'confirm_delete_permission' => 'هل أنت متأكد من رغبتك في حذف هذه الصلاحية؟',
+
+    // Dashboard - Roles
+    'roles_manage_title' => 'إدارة الأدوار',
+    'add_new_role' => 'اضافة دور جديد',
+    'confirm_delete_role' => 'هل أنت متأكد من رغبتك في حذف هذا الدور؟',
+    'permissions_label' => 'الصلاحيات',
+    'users_label' => 'المستخدمون',
+    'color_optional' => 'اللون (اختياري)',
+    'select_color' => 'اختر لونًا',
+    'role_color_blue' => 'أزرق (Primary)',
+    'role_color_green' => 'أخضر (Success)',
+    'role_color_red' => 'أحمر (Danger)',
+    'role_color_yellow' => 'أصفر (Warning)',
+    'role_color_gray' => 'رمادي (Secondary)',
+    'role_color_cyan' => 'سماوي (Info)',
+    'role_color_light' => 'فاتح (Light)',
+    'role_color_dark' => 'داكن (Dark)',
+    'general' => 'عام',
+    'general_permissions' => 'صلاحيات عامة',
+    'permissions_for_group' => 'صلاحيات: :group',
+    'select_all' => 'تحديد الكل',
+    'deselect_all' => 'إلغاء الكل',
+
+    // Dashboard - Users
+    'users_manage_title' => 'ادارة المستخدمين',
+    'add_new_user' => 'اضافة مستخدم جديد',
+    'confirm_delete_user' => 'هل أنت متأكد من رغبتك في حذف هذا المستخدم؟',
+    'username' => 'اسم المستخدم',
+    'email' => 'البريد الإلكتروني',
+    'user_avatar' => 'صورة المستخدم',
+    'phone' => 'رقم الهاتف',
+    'reset_filters' => 'تصفية افتراضية',
+    'direct_user_permissions' => 'صلاحيات المستخدم المباشرة',
+
+    // Dashboard - Villages (extra)
+    'edit_village' => 'تعديل قرية',
+
+    // Dashboard - Users/Roles extra
+    'edit_user' => 'تعديل مستخدم',
+    'edit_role' => 'تعديل دور',
+    'user' => 'المستخدم',
+    'user_permission_tip' => 'تلميح: المنع المباشر يتغلب على كل شيء. إن منعت صلاحية هنا فلن يحصل عليها المستخدم حتى لو منحت له عبر الدور.',
+    'default' => 'افتراضي',
+    'allow' => 'سماح',
+    'deny' => 'منع',
+    'select_user_to_manage_permissions' => 'اختر مستخدماً لإدارة صلاحياته.',
+    'search_by_name_or_key' => 'ابحث بالاسم أو المفتاح',
+    'no_users_in_role' => 'لا يوجد مستخدمون في هذا الدور.',
+];

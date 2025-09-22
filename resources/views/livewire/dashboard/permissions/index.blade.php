@@ -4,24 +4,24 @@
         <div class="card-header">
             <div class="row mb-3 align-items-center">
                 <div class="col-md-6">
-                    <h3>إدارة الصلاحيات</h3>
+                    <h3>{{ __('app.permissions_manage_title') }}</h3>
                 </div>
                 @can('create', \App\Models\Permission::class)
                 <div class="col-md-6 text-end">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#permissionFormModal"
                         wire:click="$dispatch('openPermissionFormModal')">
-                        <i class="fas fa-plus ms-1"></i> اضافة صلاحية جديدة
+                        <i class="fas fa-plus ms-1"></i> {{ __('app.add_new_permission') }}
                     </button>
                 </div>
                 @endcan
             </div>
             <div class="row g-2 align-items-end">
                 <div class="col-md-4">
-                    <label class="form-label">بحث</label>
-                    <input wire:model.live.debounce.400ms="search" type="text" class="form-control" placeholder="ابحث بالاسم/المفتاح/الجدول">
+                    <label class="form-label">{{ __('app.search') }}</label>
+                    <input wire:model.live.debounce.400ms="search" type="text" class="form-control" placeholder="{{ __('app.search') }} / {{ __('app.key_label') }} / {{ __('app.table') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">صفحة</label>
+                    <label class="form-label">{{ __('app.page') }}</label>
                     <select wire:model.change="perPage" class="form-select">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -36,28 +36,28 @@
                 <table class="table table-striped table-hover align-middle">
                     <thead>
                         <tr>
-                            <th wire:click="sort('table_name')" style="cursor: pointer;">الجدول
+                            <th wire:click="sort('table_name')" style="cursor: pointer;">{{ __('app.table') }}
                                 @if ($sortBy === 'table_name')
                                     <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                     <i class="fas fa-sort"></i>
                                 @endif
                             </th>
-                            <th wire:click="sort('name')" style="cursor: pointer;">الاسم
+                            <th wire:click="sort('name')" style="cursor: pointer;">{{ __('app.name') }}
                                 @if ($sortBy === 'name')
                                     <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                     <i class="fas fa-sort"></i>
                                 @endif
                             </th>
-                            <th wire:click="sort('key')" style="cursor: pointer;">المفتاح
+                            <th wire:click="sort('key')" style="cursor: pointer;">{{ __('app.key_label') }}
                                 @if ($sortBy === 'key')
                                     <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                 @else
                                     <i class="fas fa-sort"></i>
                                 @endif
                             </th>
-                            <th class="text-center">الإجراءات</th>
+                            <th class="text-center">{{ __('app.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,7 +78,7 @@
                                         @can('delete', $p)
                                         <button class="btn btn-danger" wire:loading.attr="disabled"
                                             wire:click="delete({{ $p->id }})"
-                                            onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذه الصلاحية؟');">
+                                            onclick="return confirm('{{ __('app.confirm_delete_permission') }}');">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                         @endcan
@@ -87,7 +87,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted">لا يوجد نتائج حسب التصفية الحالية</td>
+                                <td colspan="4" class="text-center text-muted">{{ __('app.no_results') }}</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -96,7 +96,7 @@
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
             <div class="text-muted small">
-                عرض {{ $permissions->firstItem() }} - {{ $permissions->lastItem() }} من {{ $permissions->total() }}
+                {{ __('app.showing_x_to_y_of_z', ['from' => $permissions->firstItem(), 'to' => $permissions->lastItem(), 'total' => $permissions->total()]) }}
             </div>
             <div>
                 {{ $permissions->onEachSide(1)->links() }}
@@ -104,7 +104,7 @@
         </div>
     </div>
     @else
-    <div class="alert alert-danger">ليس لديك الصلاحية لعرض هذه الصفحة.</div>
+    <div class="alert alert-danger">{{ __('app.unauthorized') }}</div>
     @endcan
 
 
@@ -114,7 +114,7 @@
     
 
     <div wire:loading wire:target="search,perPage,sortBy" class="position-fixed bottom-0 end-0 m-3">
-        <span class="badge bg-info">جاري التحديث...</span>
+        <span class="badge bg-info">{{ __('app.updating') }}</span>
     </div>
 </div>
 

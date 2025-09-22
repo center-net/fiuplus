@@ -13,10 +13,10 @@
     $isSearch = $isSearch ?? false;
 @endphp
 <div class="{{ $colSize ?? 'col-md-4' }} ">
-    <label for="{{ $fieldPrefix }}country_id" class="form-label">الدولة</label>
+    <label for="{{ $fieldPrefix }}country_id" class="form-label">{{ __('app.country') }}</label>
     <select class="form-select{{ $showErrors && $errors->has($modelPrefix . 'country_id') ? ' is-invalid' : '' }}" id="{{ $fieldPrefix }}country_id"
         wire:model.{{ $countryModel }}="{{ $modelPrefix }}country_id">
-        <option value="">{{ $isSearch ? 'الكل' : 'اختر دولة' }}</option>
+        <option value="">{{ $isSearch ? __('app.all') : __('app.choose_country') }}</option>
         @foreach ($countries as $country)
             <option value="{{ $country->id }}">{{ $country->name }}</option>
         @endforeach
@@ -28,10 +28,10 @@
     @endif
 </div>
 <div class="{{ $colSize ?? 'col-md-4' }} ">
-    <label for="{{ $fieldPrefix }}city_id" class="form-label">المدينة</label>
+    <label for="{{ $fieldPrefix }}city_id" class="form-label">{{ __('app.city') }}</label>
     <select class="form-select{{ $showErrors && $errors->has($modelPrefix . 'city_id') ? ' is-invalid' : '' }}" id="{{ $fieldPrefix }}city_id"
         wire:model.change="{{ $modelPrefix }}city_id"@if(!data_get($this, $modelPrefix . 'country_id')) disabled @endif>
-        <option value="">{{ $isSearch ? 'الكل' : 'اختر مدينة' }}</option>
+        <option value="">{{ $isSearch ? __('app.all') : __('app.choose_city') }}</option>
         @foreach ($cities as $city)
             <option value="{{ $city->id }}">{{ $city->name }}</option>
         @endforeach
@@ -43,10 +43,10 @@
     @endif
 </div>
 <div class="{{ $colSize ?? 'col-md-4' }} ">
-    <label for="{{ $fieldPrefix }}village_id" class="form-label">القرية</label>
+    <label for="{{ $fieldPrefix }}village_id" class="form-label">{{ __('app.village') }}</label>
     <select class="form-select{{ $showErrors && $errors->has($modelPrefix . 'village_id') ? ' is-invalid' : '' }}" id="{{ $fieldPrefix }}village_id"
         wire:model.change="{{ $modelPrefix }}village_id"@if(!data_get($this, $modelPrefix . 'city_id')) disabled @endif>
-        <option value="">{{ $isSearch ? 'الكل' : 'اختر قرية' }}</option>
+        <option value="">{{ $isSearch ? __('app.all') : __('app.choose_village') }}</option>
         @foreach ($villages as $village)
             <option value="{{ $village->id }}">{{ $village->name }}</option>
         @endforeach

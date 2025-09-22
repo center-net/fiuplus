@@ -4,43 +4,43 @@
             <div class="card-header">
                 <div class="row mb-3 align-items-center">
                     <div class="col-md-6">
-                        <h3>إدارة القرى</h3>
+                        <h3>{{ __('app.villages_manage_title') }}</h3>
                     </div>
                     @can('create', \App\Models\Village::class)
                         <div class="col-md-6 text-end">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#villageFormModal"
                                 wire:click="$dispatch('openVillageFormModal')">
-                                <i class="fas fa-plus ms-1"></i> اضافة قرية جديدة
+                                <i class="fas fa-plus ms-1"></i> {{ __('app.add_new_village') }}
                             </button>
                         </div>
                     @endcan
                 </div>
                 <div class="row g-2 align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label">بحث</label>
+                        <label class="form-label">{{ __('app.search') }}</label>
                         <input wire:model.live.debounce.400ms="search" type="text" class="form-control"
-                            placeholder="ابحث بالاسم أو الرمز">
+                            placeholder="{{ __('app.search_placeholder') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">الدولة</label>
+                        <label class="form-label">{{ __('app.country') }}</label>
                         <select wire:model.change="countryId" class="form-select">
-                            <option value="">الكل</option>
+                            <option value="">{{ __('app.all') }}</option>
                             @foreach($countries as $country)
                                 <option value="{{ $country->id }}">{{ $country->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">المدينة</label>
+                        <label class="form-label">{{ __('app.city') }}</label>
                         <select wire:model.change="cityId" class="form-select" @disabled(!$countryId)>
-                            <option value="">{{ $countryId ? 'الكل' : 'اختر دولة أولاً' }}</option>
+                            <option value="">{{ $countryId ? __('app.all') : __('app.choose_country_first') }}</option>
                             @foreach($cities as $city)
                                 <option value="{{ $city->id }}">{{ $city->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">صفحة</label>
+                        <label class="form-label">{{ __('app.page') }}</label>
                         <select wire:model.change="perPage" class="form-select">
                             <option value="10">10</option>
                             <option value="25">25</option>
@@ -55,16 +55,16 @@
                     <table class="table table-striped table-hover align-middle">
                         <thead>
                             <tr>
-                                <th wire:click="sort('name')" style="cursor: pointer;">الاسم
+                                <th wire:click="sort('name')" style="cursor: pointer;">{{ __('app.name') }}
                                     @if ($sortBy === 'name')
                                         <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
                                     @else
                                         <i class="fas fa-sort"></i>
                                     @endif
                                 </th>
-                                <th>المدينة</th>
-                                <th>الدولة</th>
-                                <th class="text-center">الإجراءات</th>
+                                <th>{{ __('app.city') }}</th>
+                                <th>{{ __('app.country') }}</th>
+                                <th class="text-center">{{ __('app.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -85,7 +85,7 @@
                                             @can('delete', $village)
                                                 <button class="btn btn-danger" wire:loading.attr="disabled"
                                                     wire:click="delete({{ $village->id }})"
-                                                    onclick="return confirm('هل أنت متأكد من رغبتك في حذف هذه القرية؟');">
+                                                    onclick="return confirm('{{ __('app.confirm_delete_village') }}');">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             @endcan
@@ -94,7 +94,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">لا يوجد نتائج حسب التصفية الحالية</td>
+                                    <td colspan="6" class="text-center text-muted">{{ __('app.no_results') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -103,7 +103,7 @@
             </div>
             <div class="card-footer d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
-                    عرض {{ $villages->firstItem() }} - {{ $villages->lastItem() }} من {{ $villages->total() }}
+                    {{ __('app.showing_x_to_y_of_z', ['from' => $villages->firstItem(), 'to' => $villages->lastItem(), 'total' => $villages->total()]) }}
                 </div>
                 <div>
                     {{ $villages->onEachSide(1)->links() }}
@@ -111,13 +111,13 @@
             </div>
         </div>
     @else
-        <div class="alert alert-danger">ليس لديك الصلاحية لعرض هذه الصفحة.</div>
+        <div class="alert alert-danger">{{ __('app.unauthorized') }}</div>
     @endcan
 
     <livewire:dashboard.villages.form />
 
     <div wire:loading wire:target="search,perPage,sortBy,countryId,cityId" class="position-fixed bottom-0 end-0 m-3">
-        <span class="badge bg-info">جاري التحديث...</span>
+        <span class="badge bg-info">{{ __('app.updating') }}</span>
     </div>
 </div>
 @script

@@ -1,10 +1,10 @@
 <div>
-    <x-modal id="roleFormModal" size="modal-lg" title="{{ $role_id ? 'تعديل دور' : 'اضافة دور جديد' }}">
+    <x-modal id="roleFormModal" size="modal-lg" title="{{ $role_id ? __('app.edit_role') : __('app.add_new_role') }}">
         <div class="modal-body">
             <form wire:submit.prevent="save">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="name" class="form-label">الاسم</label>
+                        <label for="name" class="form-label">{{ __('app.name') }}</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
                             wire:model="name">
                         @error('name')
@@ -12,7 +12,7 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="key" class="form-label">المفتاح</label>
+                        <label for="key" class="form-label">{{ __('app.key_label') }}</label>
                         <input type="text" class="form-control @error('key') is-invalid @enderror" id="key"
                             wire:model="key">
                         @error('key')
@@ -20,19 +20,19 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="color" class="form-label">اللون (اختياري)</label>
+                        <label for="color" class="form-label">{{ __('app.color_optional') }}</label>
                         <select class="form-select @error('color') is-invalid @enderror" id="color"
                             wire:model="color">
-                            <option value="">اختر لونًا</option>
-                            <option value="bg-primary text-white" class="bg-primary text-white">أزرق (Primary)</option>
-                            <option value="bg-success text-white" class="bg-success text-white">أخضر (Success)</option>
-                            <option value="bg-danger text-white" class="bg-danger text-white">أحمر (Danger)</option>
-                            <option value="bg-warning text-dark" class="bg-warning text-dark">أصفر (Warning)</option>
-                            <option value="bg-secondary text-white" class="bg-secondary text-white">رمادي (Secondary)
+                            <option value="">{{ __('app.select_color') }}</option>
+                            <option value="bg-primary text-white" class="bg-primary text-white">{{ __('app.role_color_blue') }}</option>
+                            <option value="bg-success text-white" class="bg-success text-white">{{ __('app.role_color_green') }}</option>
+                            <option value="bg-danger text-white" class="bg-danger text-white">{{ __('app.role_color_red') }}</option>
+                            <option value="bg-warning text-dark" class="bg-warning text-dark">{{ __('app.role_color_yellow') }}</option>
+                            <option value="bg-secondary text-white" class="bg-secondary text-white">{{ __('app.role_color_gray') }}
                             </option>
-                            <option value="bg-info text-dark" class="bg-info text-dark">سماوي (Info)</option>
-                            <option value="bg-light text-dark" class="bg-light text-dark">فاتح (Light)</option>
-                            <option value="bg-dark text-white" class="bg-dark text-white">داكن (Dark)</option>
+                            <option value="bg-info text-dark" class="bg-info text-dark">{{ __('app.role_color_cyan') }}</option>
+                            <option value="bg-light text-dark" class="bg-light text-dark">{{ __('app.role_color_light') }}</option>
+                            <option value="bg-dark text-white" class="bg-dark text-white">{{ __('app.role_color_dark') }}</option>
                         </select>
                         @error('color')
                             <div class="invalid-feedback">{{ $message }}</div>

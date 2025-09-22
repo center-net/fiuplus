@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <a class="navbar-brand d-lg-none" href="#">
             <i class="fas fa-graduation-cap"></i>
-            {{ config('app.name', 'فيوبلس') }}
+            {{ config('app.name', 'FiuPlus') }}
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar"
             aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,9 +54,8 @@
                             <strong>{{ Auth::user()->name }}</strong>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i>الملف
-                                    الشخصي</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>الإعدادات</a>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i>{{ __('app.profile') }}</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>{{ __('app.settings') }}</a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
@@ -66,7 +65,7 @@
                                     @csrf
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault(); this.closest('form').submit();">
-                                        <i class="fas fa-sign-out-alt me-2"></i>تسجيل الخروج
+                                        <i class="fas fa-sign-out-alt me-2"></i>{{ __('app.logout') }}
                                     </a>
                                 </form>
                             </li>
@@ -74,7 +73,7 @@
                     </li>
                 @else
                     <li class="nav-item">
-                        <a href="{{ route('login') }}" class="nav-link">تسجيل الدخول</a>
+                        <a href="{{ route('login') }}" class="nav-link">{{ __('app.login') }}</a>
                     </li>
                     {{-- <li class="nav-item">
                         <a href="{{ route('register') }}" class="nav-link">تسجيل</a>

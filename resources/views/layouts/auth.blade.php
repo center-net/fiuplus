@@ -33,7 +33,7 @@
                     <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="toast-header">
                             <i class="fas fa-info-circle text-primary me-2"></i>
-                            <strong class="me-auto">تنبيه</strong>
+                            <strong class="me-auto">{{ __('app.alert') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
                         <div class="toast-body">

@@ -7,7 +7,7 @@
                 @endforeach
             </ul>
         @else
-            <p>لا يوجد مستخدمون في هذا الدور.</p>
+            <p>{{ __('app.no_users_in_role') }}</p>
         @endif
     </div>
 </div>

@@ -9,23 +9,23 @@
                 <div class="modal-body">
                     @if($user)
                         <div class="mb-3">
-                            <strong>المستخدم:</strong> {{ $user->getDisplayName() }}
+                            <strong>{{ __('app.user') }}:</strong> {{ $user->getDisplayName() }}
                             <div class="text-muted small">{{ $user->email }}</div>
                         </div>
 
                         <div class="alert alert-info">
-                            تلميح: المنع المباشر يتغلب على كل شيء. إن منعت صلاحية هنا فلن يحصل عليها المستخدم حتى لو منحت له عبر الدور.
+                            {{ __('app.user_permission_tip') }}
                         </div>
 
                         <div class="row g-3">
                             @php
-                                $grouped = $permissions->groupBy(fn($p) => $p->table_name ?? 'عام');
+                                $grouped = $permissions->groupBy(fn($p) => $p->table_name ?? __('app.general'));
                             @endphp
                             @foreach($grouped as $group => $list)
                                 <div class="col-12">
                                     <div class="border rounded p-2">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="mb-0">{{ $group === 'عام' ? 'صلاحيات عامة' : 'صلاحيات: ' . $group }}</h6>
+                                            <h6 class="mb-0">{{ $group === __('app.general') ? __('app.general_permissions') : __('app.permissions_for_group', ['group' => $group]) }}</h6>
                                         </div>
 
                                         <div class="row g-2">
@@ -37,13 +37,13 @@
                                                         </div>
                                                         <div class="btn-group btn-group-sm" role="group" aria-label="allow-deny">
                                                             <input type="radio" class="btn-check" name="perm-{{ $permission->id }}" id="perm-{{ $permission->id }}-none" autocomplete="off" value="none" wire:model.live="permEffects.{{ $permission->id }}">
-                                                            <label class="btn btn-outline-secondary" for="perm-{{ $permission->id }}-none">افتراضي</label>
+                                                            <label class="btn btn-outline-secondary" for="perm-{{ $permission->id }}-none">{{ __('app.default') }}</label>
 
                                                             <input type="radio" class="btn-check" name="perm-{{ $permission->id }}" id="perm-{{ $permission->id }}-allow" autocomplete="off" value="allow" wire:model.live="permEffects.{{ $permission->id }}">
-                                                            <label class="btn btn-outline-success" for="perm-{{ $permission->id }}-allow">سماح</label>
+                                                            <label class="btn btn-outline-success" for="perm-{{ $permission->id }}-allow">{{ __('app.allow') }}</label>
 
                                                             <input type="radio" class="btn-check" name="perm-{{ $permission->id }}" id="perm-{{ $permission->id }}-deny" autocomplete="off" value="deny" wire:model.live="permEffects.{{ $permission->id }}">
-                                                            <label class="btn btn-outline-danger" for="perm-{{ $permission->id }}-deny">منع</label>
+                                                            <label class="btn btn-outline-danger" for="perm-{{ $permission->id }}-deny">{{ __('app.deny') }}</label>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -54,7 +54,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="text-muted">اختر مستخدماً لإدارة صلاحياته.</div>
+                        <div class="text-muted">{{ __('app.select_user_to_manage_permissions') }}</div>
                     @endif
                 </div>
                 <div class="modal-footer">

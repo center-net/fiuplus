@@ -3,7 +3,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="card-title mb-0">تسجيل الدخول</h3>
+                    <h3 class="card-title mb-0">{{ __('app.login_title') }}</h3>
                 </div>
                 <div class="card-body">
                     <form wire:submit.prevent="login">
@@ -14,13 +14,13 @@
                         @endif
 
                         <div class="mb-3">
-                            <label for="credential" class="form-label">اسم المستخدم أو البريد الإلكتروني أو الهاتف</label>
+                            <label for="credential" class="form-label">{{ __('app.credential_label') }}</label>
                             <input type="text" class="form-control @error('credential') is-invalid @enderror" id="credential" wire:model.lazy="credential" required autofocus>
                             @error('credential') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label">كلمة المرور</label>
+                            <label for="password" class="form-label">{{ __('app.password_label') }}</label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" wire:model.lazy="password" required>
                             @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>

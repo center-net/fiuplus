@@ -19,7 +19,7 @@
                 <!-- Loading Indicator for Livewire -->
                 <div class="loading-indicator" wire:loading>
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">جاري التحميل...</span>
+                        <span class="visually-hidden">{{ __('app.loading') }}</span>
                     </div>
                 </div>
 
@@ -28,7 +28,7 @@
                     <div id="notificationToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="toast-header">
                             <i class="fas fa-info-circle text-primary me-2"></i>
-                            <strong class="me-auto">تنبيه</strong>
+                            <strong class="me-auto">{{ __('app.alert') }}</strong>
                             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                         </div>
                         <div class="toast-body">

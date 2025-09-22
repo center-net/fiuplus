@@ -1,11 +1,11 @@
 <div>
     {{--  --}}
-    <x-modal id="userFormModal" size="modal-lg" title="{{ $user_id ? 'تعديل مستخدم' : 'اضافة مستخدم جديد' }}">
+    <x-modal id="userFormModal" size="modal-lg" title="{{ $user_id ? __('app.edit_user') : __('app.add_new_user') }}">
         <div class="modal-body">
             <form wire:submit.prevent="save">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="name" class="form-label">الاسم</label>
+                        <label for="name" class="form-label">{{ __('app.name') }}</label>
                         <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
                             wire:model="name">
                         @error('name')
@@ -13,7 +13,7 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="username" class="form-label">اسم المستخدم</label>
+                        <label for="username" class="form-label">{{ __('app.username') }}</label>
                         <input type="text" class="form-control @error('username') is-invalid @enderror"
                             id="username" wire:model="username">
                         @error('username')
@@ -21,7 +21,7 @@
                         @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="email" class="form-label">البريد الإلكتروني</label>
+                        <label for="email" class="form-label">{{ __('app.email') }}</label>
                         <input type="email" class="form-control @error('email') is-invalid @enderror" id="email"
                             wire:model="email">
                         @error('email')
@@ -31,23 +31,23 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3" x-data="{ isUploading: false, progress: 0 }">
-                        <label for="avatar" class="form-label">صورة المستخدم</label>
+                        <label for="avatar" class="form-label">{{ __('app.user_avatar') }}</label>
 
                         <!-- Image Preview -->
                         <div class="mb-2">
                             @if ($avatar)
                                 @if (is_string($avatar))
                                     {{-- Existing avatar from URL --}}
-                                    <img src="{{ asset('storage/' . $avatar) }}" alt="Avatar Preview"
+                                    <img src="{{ asset('storage/' . $avatar) }}" alt="{{ __('app.user_image_alt') }}"
                                         class="img-thumbnail" width="150">
                                 @else
                                     {{-- New avatar preview --}}
-                                    <img src="{{ $avatar->temporaryUrl() }}" alt="Avatar Preview" class="img-thumbnail"
+                                    <img src="{{ $avatar->temporaryUrl() }}" alt="{{ __('app.user_image_alt') }}" class="img-thumbnail"
                                         width="150">
                                 @endif
                             @else
                                 {{-- Placeholder --}}
-                                <img src="https://via.placeholder.com/150" alt="Avatar Placeholder"
+                                <img src="https://via.placeholder.com/150" alt="{{ __('app.user_image_alt') }}"
                                     class="img-thumbnail" width="150">
                             @endif
                         </div>
@@ -73,7 +73,7 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">الأدوار</label>
+                        <label class="form-label">{{ __('app.roles') }}</label>
                         <select class="form-select @error('selectedRoles') is-invalid @enderror" multiple
                             wire:model="selectedRoles" id="roles">
                             @foreach ($roles as $role)
@@ -87,7 +87,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="password" class="form-label">كلمة المرور</label>
+                        <label for="password" class="form-label">{{ __('app.password_label') }}</label>
                         <input type="password" class="form-control @error('password') is-invalid @enderror"
                             id="password" wire:model="password">
                         @error('password')
@@ -95,7 +95,7 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label for="phone" class="form-label">رقم الهاتف</label>
+                        <label for="phone" class="form-label">{{ __('app.phone') }}</label>
                         <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
                             wire:model="phone">
                         @error('phone')
