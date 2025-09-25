@@ -11,6 +11,7 @@ use App\Http\Livewire\Dashboard\Permissions\Index as PermissionsIndex;
 use App\Http\Livewire\Dashboard\Countries\Index as CountriesIndex;
 use App\Http\Livewire\Dashboard\Cities\Index as CitiesIndex;
 use App\Http\Livewire\Dashboard\Villages\Index as VillagesIndex;
+use App\Http\Livewire\Dashboard\Stores\Index as StoresIndex;
 use App\Http\Livewire\Auth\Login;
 // use App\Http\Livewire\Auth\Register;
 
@@ -61,6 +62,7 @@ Route::group(
             Route::get('/countries', CountriesIndex::class)->name('admin.countries');
             Route::get('/cities', CitiesIndex::class)->name('admin.cities');
             Route::get('/villages', VillagesIndex::class)->name('admin.villages');
+            Route::get('/stores', StoresIndex::class)->name('admin.stores');
         });
    
     }

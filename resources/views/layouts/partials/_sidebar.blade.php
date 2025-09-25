@@ -69,6 +69,14 @@
                 </a>
             </li>
             @endcan
+            @can('viewAny', \App\Models\Store::class)
+            <li>
+                <a href="{{ route('admin.stores') }}" class="nav-link text-white {{ request()->is('*stores') ? 'active' : ''}}">
+                    <i class="fas fa-store me-2"></i>
+                    {{ __('app.stores') }}
+                </a>
+            </li>
+            @endcan
         </ul>
     </div>
 </div>

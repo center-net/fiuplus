@@ -73,6 +73,13 @@ return [
     'countries' => 'الدول',
     'cities' => 'المدن',
     'villages' => 'القرى',
+    'stores' => 'المتاجر',
+    'stores_manage_title' => 'إدارة المتاجر',
+    'add_new_store' => 'اضافة متجر جديد',
+    'owner' => 'المالك',
+    'email' => 'البريد الإلكتروني',
+    'phone' => 'رقم الهاتف',
+    'confirm_delete_store' => 'هل أنت متأكد من رغبتك في حذف هذا المتجر؟',
 
     // Dashboard - Countries
     'countries_manage_title' => 'إدارة الدول',

@@ -15,6 +15,7 @@ class Index extends Component
     protected $listeners = [
         'citySaved' => '$refresh',
         'closeModal' => 'closeBootstrapModal',
+        'show-toast' => 'noop',
     ];
 
     public string $search = '';

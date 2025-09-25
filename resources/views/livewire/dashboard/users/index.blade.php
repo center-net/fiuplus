@@ -137,6 +137,8 @@
     {{-- User Modals --}}
     <livewire:dashboard.users.form />
     <livewire:dashboard.users.permissions />
+    {{-- Stores Modal for quick creation when setting role to merchant --}}
+    <livewire:dashboard.stores.form />
 
     <div wire:loading wire:target="search,country_id,city_id,village_id,perPage,sortBy"
         class="position-fixed bottom-0 end-0 m-3">

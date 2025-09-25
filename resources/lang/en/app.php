@@ -73,6 +73,13 @@ return [
     'countries' => 'Countries',
     'cities' => 'Cities',
     'villages' => 'Villages',
+'stores' => 'Stores',
+'stores_manage_title' => 'Manage Stores',
+'add_new_store' => 'Add new store',
+'owner' => 'Owner',
+'email' => 'Email',
+'phone' => 'Phone number',
+'confirm_delete_store' => 'Are you sure you want to delete this store?',
 
     // Dashboard - Countries
     'countries_manage_title' => 'Manage Countries',

@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
             VillageSeeder::class,    // ثم القرى
         ]);
 
+        // ثالثاً: المتاجر للتجار
+        $this->call([
+            StoreSeeder::class,
+        ]);
+
         // في بيئة التطوير فقط: إنشاء بيانات عشوائية للاختبار
         if (app()->environment('local')) {
             // إنشاء مستخدم مدير النظام (الاسم عبر الترجمة)

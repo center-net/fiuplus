@@ -18,6 +18,8 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        // When a user's roles are updated or a user is created, you may manually dispatch a User instance event
+        // to create a store automatically for merchants (see listeners/CreateStoreForMerchant)
     ];
 
     /**

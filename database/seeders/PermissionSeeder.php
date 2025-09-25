@@ -61,5 +61,6 @@ class PermissionSeeder extends Seeder
         Permission::generateFor('cities');
         Permission::generateFor('users');
         Permission::generateFor('villages');
+        Permission::generateFor('stores');
     }
 }

@@ -18,6 +18,7 @@ class RoleSeeder extends Seeder
             ['key' => 'administrator', 'name' => ['ar' => 'مدير النظام', 'en' => 'Administrator'], 'color' => 'bg-danger text-white'],
             ['key' => 'admin',         'name' => ['ar' => 'مدير',       'en' => 'Admin'],          'color' => 'bg-warning text-dark'],
             ['key' => 'moderator',     'name' => ['ar' => 'مراقب',      'en' => 'Moderator'],      'color' => 'bg-success text-white'],
+            ['key' => 'merchant',      'name' => ['ar' => 'تاجر',       'en' => 'Merchant'],       'color' => 'bg-info text-dark'],
             ['key' => 'user',          'name' => ['ar' => 'مستخدم',     'en' => 'User'],           'color' => 'bg-primary text-dark'],
             ['key' => 'banned',        'name' => ['ar' => 'محظور',      'en' => 'Banned'],         'color' => 'bg-secondary text-white'],
         ];

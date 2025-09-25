@@ -224,6 +224,14 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
     }
 
     /**
+     * علاقة المستخدم بمتجره (واحد إلى واحد)
+     */
+    public function store()
+    {
+        return $this->hasOne(Store::class);
+    }
+
+    /**
      * التحقق من نشاط المستخدم
      * @return bool
      */
