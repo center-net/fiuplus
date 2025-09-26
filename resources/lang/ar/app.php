@@ -80,6 +80,9 @@ return [
     'email' => 'البريد الإلكتروني',
     'phone' => 'رقم الهاتف',
     'confirm_delete_store' => 'هل أنت متأكد من رغبتك في حذف هذا المتجر؟',
+    'status' => 'الحالة',
+    'active' => 'فعال',
+    'inactive' => 'غير فعال',
 
     // Dashboard - Countries
     'countries_manage_title' => 'إدارة الدول',

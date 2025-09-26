@@ -47,6 +47,7 @@
                                 <th>{{ __('app.owner') }}</th>
                                 <th>{{ __('app.email') }}</th>
                                 <th>{{ __('app.phone') }}</th>
+                                <th class="text-center">{{ __('app.status') }}</th>
                                 <th class="text-center">{{ __('app.actions') }}</th>
                             </tr>
                         </thead>
@@ -57,11 +58,11 @@
                                     <td>{{ $store->user?->getDisplayName() }}</td>
                                     <td>{{ $store->email }}</td>
                                     <td>{{ $store->phone }}</td>
+                                    <td>{{ $store->is_active ? __('app.active') : __('app.inactive')}}</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             @can('update', $store)
                                                 <button class="btn btn-primary" wire:loading.attr="disabled"
-                                                {{-- wire:click="$dispatch('openUserFormModal', [{{ $user->id }}])" --}}
                                                     wire:click="$dispatchTo('dashboard.stores.form', 'openStoreFormModal', [{{ $store->id }}])"
                                                     data-bs-toggle="modal" data-bs-target="#storeFormModal">
                                                     <i class="fas fa-edit"></i>

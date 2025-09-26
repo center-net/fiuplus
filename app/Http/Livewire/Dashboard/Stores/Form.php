@@ -32,16 +32,7 @@ class Form extends Component
         // Base authorization (view list); specific actions are checked in save()
         $this->authorize('viewAny', Store::class);
 
-        $locale = app()->getLocale();
-        $this->users = User::query()
-            ->leftJoin('user_translations as ut', function ($join) use ($locale) {
-                $join->on('ut.user_id', '=', 'users.id')
-                     ->where('ut.locale', '=', $locale);
-            })
-            ->select('users.id', 'users.username', 'ut.name as name')
-            ->orderByRaw('CASE WHEN ut.name IS NULL THEN 0 ELSE 1 END DESC')
-            ->orderBy('ut.name')
-            ->get();
+        $this->refreshUsers();
 
         $this->resetForm();
     }
@@ -69,16 +60,29 @@ class Form extends Component
 
     protected function rules(): array
     {
+        $locale = app()->getLocale();
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            // Unique name per locale
+            'name' => [
+                'required', 'string', 'max:255',
+                Rule::unique('store_translations', 'name')
+                    ->where(function ($q) use ($locale) {
+                        $q->where('locale', $locale);
+                        if ($this->store_id) {
+                            $q->where('store_id', '!=', $this->store_id);
+                        }
+                    }),
+            ],
             // Ensure a user can have only one store
             'user_id' => [
                 'required',
                 Rule::exists('users', 'id'),
                 Rule::unique('stores', 'user_id')->ignore($this->store_id),
             ],
-            'email' => ['nullable', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            // Global unique email and phone (required)
+            'email' => ['required', 'email', 'max:255', Rule::unique('stores', 'email')->ignore($this->store_id)],
+            'phone' => ['required', 'string', 'max:20', Rule::unique('stores', 'phone')->ignore($this->store_id)],
         ];
     }
 
@@ -144,10 +148,51 @@ class Form extends Component
 
     public function render()
     {
-        // Pass users to the view for the owner select
+        // Ensure users list is fresh when opening modal after saves
+        $this->refreshUsers();
+
         return view('livewire.dashboard.stores.form', [
             'users' => $this->users,
         ]);
+    }
+
+    /**
+     * Load users who have 'merchant' role and do not currently own a store.
+     * If editing an existing store, include its current owner to avoid dropping selection.
+     */
+    protected function refreshUsers(): void
+    {
+        $locale = app()->getLocale();
+
+        $base = User::query()
+            // join translation for localized name
+            ->leftJoin('user_translations as ut', function ($join) use ($locale) {
+                $join->on('ut.user_id', '=', 'users.id')
+                     ->where('ut.locale', '=', $locale);
+            })
+            // restrict to merchant role
+            ->join('role_user as ru', 'ru.user_id', '=', 'users.id')
+            ->join('roles as r', 'r.id', '=', 'ru.role_id')
+            ->where('r.key', 'merchant')
+            ->select('users.id', 'users.username', 'ut.name as name');
+
+        // users that already own a store
+        $ownedBy = Store::query()->pluck('user_id')->toArray();
+
+        if ($this->store_id) {
+            // include current owner if editing
+            $currentOwnerId = Store::where('id', $this->store_id)->value('user_id');
+            $ownedBy = array_diff($ownedBy, [$currentOwnerId]);
+        }
+
+        if (!empty($ownedBy)) {
+            $base->whereNotIn('users.id', $ownedBy);
+        }
+
+        $this->users = $base
+            ->orderByRaw('CASE WHEN ut.name IS NULL THEN 0 ELSE 1 END DESC')
+            ->orderBy('ut.name')
+            ->get();
     }
 
     // Generate a URL-friendly unique slug from name

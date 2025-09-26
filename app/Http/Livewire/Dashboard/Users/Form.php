@@ -21,7 +21,8 @@ class Form extends Component
     public $email;
     public $phone;
     public $password;
-    public $avatar;
+    public $avatar; // existing stored path (string) for preview
+    public $new_avatar; // UploadedFile for new upload (optional)
     public $country_id;
     public $city_id;
     public $village_id;
@@ -89,7 +90,8 @@ class Form extends Component
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->user_id)],
             'phone' => ['required', 'string', 'max:20', Rule::unique('users')->ignore($this->user_id)],
             'password' => $this->user_id ? 'nullable|string|min:8' : 'required|string|min:8',
-            'avatar' => 'nullable|image|mimes:jpeg,png,webp,avif|max:2048', // Max 2MB with explicit mimes
+            // Make upload optional on both create and update. Use separate field for new upload.
+            'new_avatar' => 'nullable|image|mimes:jpeg,png,webp,avif|max:2048',
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
             'village_id' => 'nullable|exists:villages,id',
@@ -103,9 +105,9 @@ class Form extends Component
         $validatedData = $this->validate();
         $locale = app()->getLocale();
 
-        // Handle file upload (store first to set path)
-        if ($this->avatar && !is_string($this->avatar)) {
-            $validatedData['avatar'] = $this->avatar->store('users/avatars', 'public');
+        // Handle file upload (optional). Store only if new file provided.
+        if ($this->new_avatar) {
+            $validatedData['avatar'] = $this->new_avatar->store('users/avatars', 'public');
         }
 
         // 'name' is translatable; remove from base payload and save via translations API
@@ -127,6 +129,12 @@ class Form extends Component
             // Save translated name
             $user->translateOrNew($locale)->name = $this->name;
             $user->save();
+
+            // If no new avatar uploaded, preserve existing value explicitly
+            if (!isset($validatedData['avatar']) && $oldAvatar) {
+                $user->avatar = $oldAvatar;
+                $user->save();
+            }
 
             $user->roles()->sync($this->selectedRoles);
             $user->clearPermissionsCache();
@@ -217,6 +225,7 @@ class Form extends Component
         $this->phone = '';
         $this->password = '';
         $this->avatar = null;
+        $this->new_avatar = null;
         $this->country_id = null;
         $this->city_id = null;
         $this->village_id = null;

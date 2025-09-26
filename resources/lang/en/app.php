@@ -80,6 +80,9 @@ return [
 'email' => 'Email',
 'phone' => 'Phone number',
 'confirm_delete_store' => 'Are you sure you want to delete this store?',
+'status' => 'Status',
+'active' => 'Active',
+'inactive' => 'Inactive',
 
     // Dashboard - Countries
     'countries_manage_title' => 'Manage Countries',

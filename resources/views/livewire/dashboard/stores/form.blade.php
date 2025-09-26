@@ -1,9 +1,4 @@
 <div>
-
-    {{-- <x-modal id="userFormModal" size="modal-lg" title="{{ $user_id ? __('app.edit_user') : __('app.add_new_user') }}">
-        <div class="modal-body">
-            <form wire:submit.prevent="save"> --}}
-
     <x-modal id="storeFormModal" size="modal-lg" title="{{ $store_id ? __('app.edit_store') : __('app.add_new_store') }}">
         <div class="modal-body">
             <form wire:submit.prevent="save">
