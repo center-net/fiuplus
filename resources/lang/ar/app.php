@@ -22,6 +22,7 @@ return [
     'alert' => 'تنبيه',
     'no_results' => 'لا يوجد نتائج حسب التصفية الحالية',
     'unauthorized' => 'ليس لديك الصلاحية لعرض هذه الصفحة.',
+'non_merchant_forbidden' => 'أنت لست تاجراً، يرجى التواصل مع إدارة الموقع.',
     'confirm_delete_village' => 'هل أنت متأكد من رغبتك في حذف هذه القرية؟',
 
     // Notifications
@@ -143,6 +144,9 @@ return [
     'phone' => 'رقم الهاتف',
     'reset_filters' => 'تصفية افتراضية',
     'direct_user_permissions' => 'صلاحيات المستخدم المباشرة',
+    'search_roles_placeholder' => 'ابحث عن دور...',
+    'no_roles_available' => 'لا توجد أدوار متاحة حالياً.',
+    'characters' => 'أحرف',
 
     // Dashboard - Villages (extra)
     'edit_village' => 'تعديل قرية',

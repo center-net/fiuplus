@@ -22,6 +22,7 @@ return [
     'alert' => 'Alert',
     'no_results' => 'No results for the current filters',
     'unauthorized' => 'You do not have permission to view this page.',
+'non_merchant_forbidden' => 'You are not a merchant. Please contact the site administration.',
     'confirm_delete_village' => 'Are you sure you want to delete this village?',
 
     // Notifications
@@ -138,6 +139,9 @@ return [
     'phone' => 'Phone number',
     'reset_filters' => 'Reset filters',
     'direct_user_permissions' => 'Direct user permissions',
+    'search_roles_placeholder' => 'Search roles...',
+    'no_roles_available' => 'No roles available right now.',
+    'characters' => 'characters',
 
     // Dashboard - Villages (extra)
     'edit_village' => 'Edit village',

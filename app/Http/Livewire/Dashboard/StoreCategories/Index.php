@@ -85,7 +85,19 @@ class Index extends Component
     {
         $cat = StoreCategory::findOrFail($categoryId);
         $this->authorize('delete', $cat);
-        $cat->delete();
+
+        \DB::transaction(function () use ($cat) {
+            // Remove translations to avoid FK violations if DB-level cascade isn't in place
+            if (method_exists($cat, 'translations')) {
+                $cat->translations()->delete();
+            }
+            // Detach stores (set to null) in case FK isn't set to null on delete yet
+            if (method_exists($cat, 'stores')) {
+                $cat->stores()->update(['category_id' => null]);
+            }
+            $cat->delete();
+        });
+
         $this->dispatch('show-toast', message: 'تم حذف القسم بنجاح.');
     }
 

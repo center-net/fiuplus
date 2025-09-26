@@ -23,13 +23,22 @@ class Setup extends Component
     public function mount(): void
     {
         $user = auth()->user();
+        $user->loadMissing(['roles', 'store']);
 
-        $store = $user->store()->firstOrCreate([], [
-            'slug' => $user->username ?: (string)$user->id,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'is_active' => false,
-        ]);
+        // Prevent non-merchants from accessing or creating a store via this setup flow
+        if (!$user->roles->contains('key', 'merchant')) {
+            abort(403, __('app.non_merchant_forbidden'));
+        }
+
+        $store = $user->store;
+        if (!$store) {
+            $store = $user->store()->create([
+                'slug' => $user->username ?: (string)$user->id,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'is_active' => false,
+            ]);
+        }
 
         // Authorization: only the merchant owner (or admins with edit permission) can access setup
         $this->authorize('setup', $store);
@@ -115,6 +124,7 @@ class Setup extends Component
 
     public function render()
     {
-        return view('livewire.merchant.store.setup');
+        return view('livewire.merchant.store.setup')
+            ->layout('layouts.app', ['title' => __('app.store_categories_manage_title')]);
     }
 }

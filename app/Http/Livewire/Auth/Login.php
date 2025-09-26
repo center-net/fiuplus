@@ -30,7 +30,19 @@ class Login extends Component
         if (Auth::attempt($credentials, $this->remember)) {
             session()->regenerate();
 
-            return redirect()->intended('/');
+            $user = Auth::user();
+            if ($user) {
+                $user->loadMissing(['roles', 'store']);
+                $isMerchant = $user->roles->contains('key', 'merchant');
+                if ($isMerchant) {
+                    $store = $user->store;
+                    if (!$store || !$store->is_active) {
+                        return redirect()->route('merchant.store.setup');
+                    }
+                }
+            }
+
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         session()->flash('error', 'بيانات الاعتماد المقدمة غير صحيحة.');

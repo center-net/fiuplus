@@ -52,8 +52,8 @@ Route::group(
         })->name('logout')->middleware('auth');
 
 
-        // Authenticated Routes
-        Route::middleware('auth')->group(function () {
+        // Authenticated Routes (merchants with inactive stores will be redirected to setup)
+        Route::middleware(['auth', 'merchant.store.setup'])->group(function () {
             Route::get('/', Dashboard::class)->name('admin.dashboard');
             Route::get('/users', UsersIndex::class)->name('admin.users');
             Route::get('/roles', RolesIndex::class)->name('admin.roles');
@@ -67,11 +67,8 @@ Route::group(
             Route::get('/store-categories', StoreCategoriesIndex::class)->name('admin.store-categories');
 
             // Merchant store setup (forces merchants with inactive store to complete setup)
-            Route::middleware('merchant.store.setup')->group(function () {
-                \App\Http\Livewire\Merchant\Store\Setup::class; // ensure class is autoloaded
-                Route::get('/merchant/store/setup', \App\Http\Livewire\Merchant\Store\Setup::class)
-                    ->name('merchant.store.setup');
-            });
+            Route::get('/merchant/store/setup', \App\Http\Livewire\Merchant\Store\Setup::class)
+                ->name('merchant.store.setup');
         });
    
     }

@@ -151,13 +151,13 @@ class Form extends Component
                         'user_id' => $user->id,
                         'email' => $user->email,
                         'phone' => $user->phone,
-                        'is_active' => true,
+                        'is_active' => false,
                     ]);
                     $store->translateOrNew($locale)->name = $this->name;
                     $store->save();
                     $this->dispatch('show-toast', message: 'تم إنشاء المتجر بنجاح.');
                 } else {
-                    $store->update(['is_active' => true]);
+                    $store->update(['is_active' => false]);
                 }
             } else {
                 // If user had a store, deactivate it
@@ -195,17 +195,19 @@ class Form extends Component
             // If merchant is selected during creation, auto-create store (no modal)
             $isMerchant = Role::where('key', 'merchant')->whereIn('id', $this->selectedRoles)->exists();
             if ($isMerchant) {
-                // Create store directly with defaults
-                \App\Models\Store::firstOrCreate(
+                // Create store directly with defaults, keep inactive until setup is completed
+                $store = \App\Models\Store::firstOrCreate(
                     ['user_id' => $user->id],
                     [
                         'slug' => \Illuminate\Support\Str::slug($user->username ?: $user->name ?: (string)$user->id, '-', 'ar'),
                         'email' => $user->email,
                         'phone' => $user->phone,
-                        'is_active' => true,
+                        'is_active' => false,
                     ]
-                )->translateOrNew($locale)->name = $user->name;
-                $store = $user->store; if ($store) { $store->save(); $this->dispatch('show-toast', message: 'تم إنشاء المتجر بنجاح.'); }
+                );
+                $store->translateOrNew($locale)->name = $user->name;
+                $store->save();
+                $this->dispatch('show-toast', message: 'تم إنشاء المتجر بنجاح.');
             }
 
             $this->dispatch('show-toast', message: 'تم اضافة المستخدم بنجاح.');

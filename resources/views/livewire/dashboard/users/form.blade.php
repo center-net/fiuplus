@@ -73,15 +73,49 @@
                         @enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ __('app.roles') }}</label>
-                        <select class="form-select @error('selectedRoles') is-invalid @enderror" multiple
-                            wire:model="selectedRoles" id="roles">
-                            @foreach ($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label mb-2">{{ __('app.roles') }}</label>
+
+                        @php
+                            $selectedRoleIds = collect($selectedRoles ?? [])
+                                ->map(fn ($id) => (int) $id)
+                                ->all();
+                        @endphp
+
+                        <div class="row g-2">
+                            @forelse ($roles as $role)
+                                @php
+                                    $isSelected = in_array((int) $role->id, $selectedRoleIds, true);
+                                @endphp
+                                <div class="col-12 col-sm-6">
+                                    <div
+                                        class="border rounded p-3 h-100 d-flex align-items-center justify-content-between gap-3">
+                                        <div class="flex-grow-1 min-w-0">
+                                            <span class="fw-semibold d-block text-truncate">{{ $role->name }}</span>
+                                            @if (!empty($role->description))
+                                                <small class="text-muted d-block text-truncate">{{ $role->description }}</small>
+                                            @endif
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <input type="checkbox" class="btn-check" id="role-{{ $role->id }}"
+                                                value="{{ $role->id }}" wire:model="selectedRoles" autocomplete="off">
+                                            <label class="btn btn-sm {{ $isSelected ? 'btn-success' : 'btn-outline-danger' }}"
+                                                for="role-{{ $role->id }}">
+                                                {{ $isSelected ? __('app.allow') : __('app.deny') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <div class="alert alert-warning mb-0" role="alert">
+                                        {{ __('app.no_roles_available') }}
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+
                         @error('selectedRoles')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger mt-2">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
