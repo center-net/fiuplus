@@ -41,4 +41,10 @@ class StorePolicy
     {
         return $user->hasPermission('forceDelete_stores');
     }
+
+    public function setup(User $user, Store $store): bool
+    {
+        // Allow admins/managers with edit permission or the merchant owner of the store
+        return $user->hasPermission('edit_stores') || ($user->roles->contains('key', 'merchant') && $user->id === $store->user_id);
+    }
 }

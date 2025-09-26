@@ -77,6 +77,14 @@
                 </a>
             </li>
             @endcan
+            @can('viewAny', \App\Models\StoreCategory::class)
+            <li>
+                <a href="{{ route('admin.store-categories') }}" class="nav-link text-white {{ request()->is('*store-categories') ? 'active' : ''}}">
+                    <i class="fas fa-tags me-2"></i>
+                    {{ __('app.store_categories') }}
+                </a>
+            </li>
+            @endcan
         </ul>
     </div>
 </div>

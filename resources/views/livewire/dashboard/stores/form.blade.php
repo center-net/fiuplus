@@ -43,6 +43,20 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="category_id" class="form-label">{{ __('app.category') }}</label>
+                        <select id="category_id" class="form-select @error('category_id') is-invalid @enderror"
+                            wire:model="category_id">
+                            <option value="">{{ __('app.select_category') }}</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
     </x-modal>

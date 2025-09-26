@@ -25,8 +25,9 @@ class DatabaseSeeder extends Seeder
             VillageSeeder::class,    // ثم القرى
         ]);
 
-        // ثالثاً: المتاجر للتجار
+        // ثالثاً: أقسام المتاجر ثم المتاجر للتجار
         $this->call([
+            StoreCategorySeeder::class,
             StoreSeeder::class,
         ]);
 

@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Dashboard\Stores;
 
 use App\Models\Store;
 use App\Models\User;
+use App\Models\StoreCategory;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -22,6 +23,8 @@ class Form extends Component
 
     // View data
     public $users = [];
+    public $category_id;
+    public $categories = [];
 
     protected $listeners = [
         'openStoreFormModal' => 'loadStore',
@@ -33,6 +36,7 @@ class Form extends Component
         $this->authorize('viewAny', Store::class);
 
         $this->refreshUsers();
+        $this->refreshCategories();
 
         $this->resetForm();
     }
@@ -55,6 +59,7 @@ class Form extends Component
             $this->user_id = $store->user_id;
             $this->email = $store->email;
             $this->phone = $store->phone;
+            $this->category_id = $store->category_id;
         }
     }
 
@@ -83,6 +88,7 @@ class Form extends Component
             // Global unique email and phone (required)
             'email' => ['required', 'email', 'max:255', Rule::unique('stores', 'email')->ignore($this->store_id)],
             'phone' => ['required', 'string', 'max:20', Rule::unique('stores', 'phone')->ignore($this->store_id)],
+            'category_id' => ['nullable', Rule::exists('store_categories', 'id')],
         ];
     }
 
@@ -114,7 +120,7 @@ class Form extends Component
                 $slug = $this->makeUniqueSlug($name, $this->store_id);
             }
 
-            $store->update($validated + ['slug' => $slug]);
+            $store->update($validated + ['slug' => $slug, 'category_id' => $this->category_id]);
             $store->translateOrNew($locale)->name = $name;
             $store->save();
 
@@ -126,13 +132,14 @@ class Form extends Component
             $slug = $this->makeUniqueSlug($name);
 
             $store = Store::create($validated + [
-                'is_active' => true,
+                'is_active' => false, // start inactive by default
                 'slug' => $slug,
+                'category_id' => $this->category_id,
             ]);
             $store->translateOrNew($locale)->name = $name;
             $store->save();
 
-            $this->dispatch('show-toast', message: 'تم إضافة المتجر بنجاح.');
+            $this->dispatch('show-toast', message: 'تم إضافة المتجر بنجاح، وهو غير مفعل حتى استكمال البيانات.');
         }
 
         $this->dispatch('storeSaved');
@@ -142,7 +149,7 @@ class Form extends Component
 
     public function resetForm(): void
     {
-        $this->reset('store_id', 'name', 'user_id', 'email', 'phone');
+        $this->reset('store_id', 'name', 'user_id', 'email', 'phone', 'category_id');
         $this->resetValidation();
     }
 
@@ -153,6 +160,7 @@ class Form extends Component
 
         return view('livewire.dashboard.stores.form', [
             'users' => $this->users,
+            'categories' => $this->categories,
         ]);
     }
 
@@ -192,6 +200,13 @@ class Form extends Component
         $this->users = $base
             ->orderByRaw('CASE WHEN ut.name IS NULL THEN 0 ELSE 1 END DESC')
             ->orderBy('ut.name')
+            ->get();
+    }
+
+    protected function refreshCategories(): void
+    {
+        $this->categories = StoreCategory::withTranslation(app()->getLocale())
+            ->orderByTranslation('name')
             ->get();
     }
 

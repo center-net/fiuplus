@@ -18,6 +18,7 @@ class Store extends Model implements TranslatableContract
     protected $fillable = [
         'slug',
         'user_id',
+        'category_id',
         'logo',
         'phone',
         'email',
@@ -32,6 +33,11 @@ class Store extends Model implements TranslatableContract
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(StoreCategory::class, 'category_id');
     }
 
     /**

@@ -18,6 +18,7 @@ class CreateStoreForMerchant
                 'slug' => $user->username ?: (string) $user->id,
                 'email' => $user->email,
                 'phone' => $user->phone,
+                'is_active' => false, // start inactive by default
             ]);
             $store->user()->associate($user);
 

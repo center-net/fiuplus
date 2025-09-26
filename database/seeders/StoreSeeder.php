@@ -23,7 +23,7 @@ class StoreSeeder extends Seeder
                     'slug' => $user->username ?: (string) $user->id,
                     'email' => $user->email,
                     'phone' => $user->phone,
-                    'is_active' => true,
+                    'is_active' => false, // start inactive
                 ]
             );
 

@@ -12,6 +12,7 @@ use App\Http\Livewire\Dashboard\Countries\Index as CountriesIndex;
 use App\Http\Livewire\Dashboard\Cities\Index as CitiesIndex;
 use App\Http\Livewire\Dashboard\Villages\Index as VillagesIndex;
 use App\Http\Livewire\Dashboard\Stores\Index as StoresIndex;
+use App\Http\Livewire\Dashboard\StoreCategories\Index as StoreCategoriesIndex;
 use App\Http\Livewire\Auth\Login;
 // use App\Http\Livewire\Auth\Register;
 
@@ -63,6 +64,14 @@ Route::group(
             Route::get('/cities', CitiesIndex::class)->name('admin.cities');
             Route::get('/villages', VillagesIndex::class)->name('admin.villages');
             Route::get('/stores', StoresIndex::class)->name('admin.stores');
+            Route::get('/store-categories', StoreCategoriesIndex::class)->name('admin.store-categories');
+
+            // Merchant store setup (forces merchants with inactive store to complete setup)
+            Route::middleware('merchant.store.setup')->group(function () {
+                \App\Http\Livewire\Merchant\Store\Setup::class; // ensure class is autoloaded
+                Route::get('/merchant/store/setup', \App\Http\Livewire\Merchant\Store\Setup::class)
+                    ->name('merchant.store.setup');
+            });
         });
    
     }
