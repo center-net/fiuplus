@@ -11,117 +11,113 @@
         <header class="fb-topbar">
             <div class="fb-logo">
                 <i class="fas fa-bolt"></i>
-                <a href="{{ url('/') }}">FiuPlus</a>
+                <a href="{{ url('/') }}">{{ __('layout.brand_name') }}</a>
             </div>
 
-            <div class="fb-search">
-                <i class="fas fa-search"></i>
-                <input type="search" placeholder="{{ __('Search on FiuPlus') }}"
-                    aria-label="{{ __('Search on FiuPlus') }}">
+            <div class="fb-search" role="search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" placeholder="{{ __('layout.search_placeholder') }}"
+                    aria-label="{{ __('layout.search_placeholder') }}">
             </div>
 
-            <nav class="fb-nav" aria-label="{{ __('Primary navigation') }}">
-                <a href="#" class="active"><i class="fas fa-home fa-lg"></i><span>{{ __('Home') }}</span></a>
-                <a href="#"><i class="fas fa-users fa-lg"></i><span>{{ __('Friends') }}</span></a>
-                <a href="#"><i class="fas fa-tv fa-lg"></i><span>{{ __('Watch') }}</span></a>
-                <a href="#"><i class="fas fa-store fa-lg"></i><span>{{ __('Marketplace') }}</span></a>
-                <a href="#"><i class="fas fa-gamepad fa-lg"></i><span>{{ __('Gaming') }}</span></a>
+            <nav class="fb-nav" aria-label="{{ __('layout.primary_nav_label') }}">
+                <a href="#" class="active" aria-label="{{ __('layout.nav_home_label') }}"><i class="fas fa-home fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_home') }}</span></a>
+                <a href="#" aria-label="{{ __('layout.nav_friends_label') }}"><i class="fas fa-users fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_friends') }}</span></a>
+                <a href="#" aria-label="{{ __('layout.nav_watch_label') }}"><i class="fas fa-tv fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_watch') }}</span></a>
+                <a href="#" aria-label="{{ __('layout.nav_marketplace_label') }}"><i class="fas fa-store fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_marketplace') }}</span></a>
+                <a href="#" aria-label="{{ __('layout.nav_gaming_label') }}"><i class="fas fa-gamepad fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_gaming') }}</span></a>
             </nav>
 
             <div class="fb-quick-actions">
-                <button class="fb-action-btn" type="button" aria-label="{{ __('Create') }}"><i
-                        class="fas fa-plus"></i></button>
-                <button class="fb-action-btn" type="button" aria-label="{{ __('Messenger') }}"><i
-                        class="fab fa-facebook-messenger"></i></button>
-                <button class="fb-action-btn" type="button" aria-label="{{ __('Notifications') }}"><i
-                        class="fas fa-bell"></i></button>
-                <div class="fb-language-switcher">
+                <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_create') }}" title="{{ __('layout.action_create') }}"><i
+                        class="fas fa-plus" aria-hidden="true"></i></button>
+                <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_messenger') }}" title="{{ __('layout.action_messenger') }}"><i
+                        class="fab fa-facebook-messenger" aria-hidden="true"></i></button>
+                <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_notifications') }}" title="{{ __('layout.action_notifications') }}"><i
+                        class="fas fa-bell" aria-hidden="true"></i></button>
+                <div class="fb-language-switcher" aria-label="{{ __('layout.language_switcher_label') }}">
 
-                    <label for="localeSwitcher" class="visually-hidden"> {{ LaravelLocalization::setLocale() }}</label>
+                    <label for="localeSwitcher" class="visually-hidden">{{ __('layout.language_switcher_label') }}</label>
                     <div id="localeSwitcher" onchange="if(this.value) window.location.href=this.value;">
                         @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                             @if ($localeCode != LaravelLocalization::setLocale())
-                                
-                                    <a class="dropdown-item" rel="alternate" hreflang="{{ $localeCode }}"
-                                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <img src="{{ asset('images/Flag/' . $properties['flag'] . '.png') }}"
-                                                        width="32" height="32" class="rounded-circle"
-                                                        alt="{{ $properties['flag'] }}">
-                                                </div>
-                                                <div class="flex-grow-1 ms-2">
-                                                    <p class="mb-0">{{ $properties['native'] }}</p>
-                                                </div>
-                                            </div>
-                                        </a>
+                                <a class="dropdown-item" rel="alternate" hreflang="{{ $localeCode }}"
+                                    href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <img src="{{ asset('images/Flag/' . $properties['flag'] . '.png') }}"
+                                                width="32" height="32" class="rounded-circle"
+                                                alt="{{ __('layout.locale_flag_alt', ['locale' => $properties['native']]) }}">
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <p class="mb-0">{{ $properties['native'] }}</p>
+                                        </div>
+                                    </div>
+                                </a>
                             @endif
                         @endforeach
                     </div>
                 </div>
-                <div class="fb-profile-mini">
-                    <div class="fb-avatar">{{ $user ? mb_substr($user->name, 0, 1) : __('G') }}</div>
-                    <span>{{ $user->name ?? __('Guest') }}</span>
+                <div class="fb-profile-mini" aria-label="{{ __('layout.profile_menu_label') }}">
+                    <div class="fb-avatar" aria-hidden="true">{{ $user ? mb_substr($user->name, 0, 1) : __('layout.user_guest_initial') }}</div>
+                    <span>{{ $user->name ?? __('layout.user_guest') }}</span>
                 </div>
             </div>
         </header>
 
         <main class="fb-layout">
-            <aside class="fb-column fb-column-left" aria-label="{{ __('Left navigation') }}">
+            <aside class="fb-column fb-column-left" aria-label="{{ __('layout.left_nav_label') }}">
                 <article class="fb-card">
-                    <h2>{{ __('Menu') }}</h2>
+                    <h2>{{ __('layout.left_menu_title') }}</h2>
                     <ul class="fb-menu-list">
-                        <li class="fb-menu-item"><i class="fas fa-user"></i><span>{{ __('Profile') }}</span></li>
-                        <li class="fb-menu-item"><i
-                                class="fas fa-satellite-dish"></i><span>{{ __('News Feed') }}</span></li>
-                        <li class="fb-menu-item"><i class="fas fa-calendar-alt"></i><span>{{ __('Events') }}</span>
-                        </li>
-                        <li class="fb-menu-item"><i class="fas fa-flag"></i><span>{{ __('Pages') }}</span></li>
-                        <li class="fb-menu-item"><i class="fas fa-bookmark"></i><span>{{ __('Saved') }}</span></li>
-                        <li class="fb-menu-item"><i class="fas fa-people-carry"></i><span>{{ __('Groups') }}</span>
-                        </li>
+                        <li class="fb-menu-item"><i class="fas fa-user" aria-hidden="true"></i><span>{{ __('layout.menu_profile') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-satellite-dish" aria-hidden="true"></i><span>{{ __('layout.menu_news_feed') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-calendar-alt" aria-hidden="true"></i><span>{{ __('layout.menu_events') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-flag" aria-hidden="true"></i><span>{{ __('layout.menu_pages') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-bookmark" aria-hidden="true"></i><span>{{ __('layout.menu_saved') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-users" aria-hidden="true"></i><span>{{ __('layout.menu_groups') }}</span></li>
                     </ul>
                 </article>
 
                 <article class="fb-card">
-                    <h2>{{ __('Shortcuts') }}</h2>
+                    <h2>{{ __('layout.shortcuts_title') }}</h2>
                     <ul class="fb-groups-list">
                         <li class="fb-menu-item"><i
-                                class="fas fa-laptop-code"></i><span>{{ __('Developers Community') }}</span></li>
+                                class="fas fa-laptop-code" aria-hidden="true"></i><span>{{ __('layout.shortcut_developers_community') }}</span></li>
                         <li class="fb-menu-item"><i
-                                class="fas fa-plane"></i><span>{{ __('Travel Buddies 2024') }}</span></li>
-                        <li class="fb-menu-item"><i class="fas fa-dumbbell"></i><span>{{ __('Fitness Goals') }}</span>
+                                class="fas fa-plane" aria-hidden="true"></i><span>{{ __('layout.shortcut_travel_buddies') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-dumbbell" aria-hidden="true"></i><span>{{ __('layout.shortcut_fitness_goals') }}</span>
                         </li>
                         <li class="fb-menu-item"><i
-                                class="fas fa-paint-brush"></i><span>{{ __('Creative Designers Hub') }}</span></li>
+                                class="fas fa-paint-brush" aria-hidden="true"></i><span>{{ __('layout.shortcut_creative_designers') }}</span></li>
                     </ul>
                 </article>
             </aside>
 
-            <section class="fb-column fb-column-center" aria-label="{{ __('Main content') }}">
+            <section class="fb-column fb-column-center" aria-label="{{ __('layout.main_content_label') }}">
                 <article class="fb-card">
-                    <h2>{{ __('Stories') }}</h2>
+                    <h2>{{ __('layout.stories_title') }}</h2>
                     <div class="fb-story-list">
                         <div class="fb-story"
                             style="background-image: url('https://source.unsplash.com/random/300x400?nature');">
-                            <span>{{ __('Lina Adventures') }}</span>
+                            <span>{{ __('layout.story_lina_adventures') }}</span>
                         </div>
                         <div class="fb-story"
                             style="background-image: url('https://source.unsplash.com/random/301x401?city');">
-                            <span>{{ __('Tech Friday') }}</span>
+                            <span>{{ __('layout.story_tech_friday') }}</span>
                         </div>
                         <div class="fb-story"
                             style="background-image: url('https://source.unsplash.com/random/302x402?travel');">
-                            <span>{{ __('Team Retreat') }}</span>
+                            <span>{{ __('layout.story_team_retreat') }}</span>
                         </div>
                         <div class="fb-story"
                             style="background-image: url('https://source.unsplash.com/random/303x403?food');">
-                            <span>{{ __('Chef Karim') }}</span>
+                            <span>{{ __('layout.story_chef_karim') }}</span>
                         </div>
                     </div>
                 </article>
 
-                <div class="fb-card">
+                <div class="fb-card" aria-label="{{ __('layout.post_list_label') }}">
 
                     <div class="fb-post-list">
 
@@ -130,39 +126,39 @@
                 </div>
             </section>
 
-            <aside class="fb-column fb-column-right" aria-label="{{ __('Right sidebar') }}">
+            <aside class="fb-column fb-column-right" aria-label="{{ __('layout.right_sidebar_label') }}">
                 <article class="fb-card">
-                    <h2>{{ __('Upcoming Events') }}</h2>
+                    <h2>{{ __('layout.events_title') }}</h2>
                     <ul class="fb-menu-list">
                         <li class="fb-menu-item"><i
-                                class="fas fa-code"></i><span>{{ __('Hackathon Weekend · 2 days') }}</span></li>
+                                class="fas fa-code" aria-hidden="true"></i><span>{{ __('layout.event_hackathon') }}</span></li>
                         <li class="fb-menu-item"><i
-                                class="fas fa-chalkboard-teacher"></i><span>{{ __('UI Masterclass · Online') }}</span>
+                                class="fas fa-chalkboard-teacher" aria-hidden="true"></i><span>{{ __('layout.event_ui_masterclass') }}</span>
                         </li>
                         <li class="fb-menu-item"><i
-                                class="fas fa-hiking"></i><span>{{ __('Community Hike · Saturday') }}</span></li>
+                                class="fas fa-hiking" aria-hidden="true"></i><span>{{ __('layout.event_community_hike') }}</span></li>
                     </ul>
                 </article>
 
                 <article class="fb-card">
-                    <h2>{{ __('Suggested Pages') }}</h2>
+                    <h2>{{ __('layout.suggested_pages_title') }}</h2>
                     <ul class="fb-groups-list">
                         <li class="fb-menu-item"><i
-                                class="fas fa-lightbulb"></i><span>{{ __('Startup Sparks') }}</span></li>
-                        <li class="fb-menu-item"><i class="fas fa-heart"></i><span>{{ __('Wellness Daily') }}</span>
+                                class="fas fa-lightbulb" aria-hidden="true"></i><span>{{ __('layout.page_startup_sparks') }}</span></li>
+                        <li class="fb-menu-item"><i class="fas fa-heart" aria-hidden="true"></i><span>{{ __('layout.page_wellness_daily') }}</span>
                         </li>
                         <li class="fb-menu-item"><i
-                                class="fas fa-camera-retro"></i><span>{{ __('Lens Lovers') }}</span></li>
+                                class="fas fa-camera-retro" aria-hidden="true"></i><span>{{ __('layout.page_lens_lovers') }}</span></li>
                     </ul>
                 </article>
 
                 <article class="fb-card">
-                    <h2>{{ __('Contacts') }}</h2>
+                    <h2>{{ __('layout.contacts_title') }}</h2>
                     <ul class="fb-contact-list">
-                        <li><span>{{ __('Omar Ali') }}</span><span class="fb-contact-status"></span></li>
-                        <li><span>{{ __('Maria Chen') }}</span><span class="fb-contact-status"></span></li>
-                        <li><span>{{ __('Khaled Noor') }}</span><span class="fb-contact-status"></span></li>
-                        <li><span>{{ __('Isabella Rossi') }}</span><span class="fb-contact-status"></span></li>
+                        <li><span>{{ __('layout.contact_omar_ali') }}</span><span class="fb-contact-status" aria-label="{{ __('layout.contact_status_online') }}"></span></li>
+                        <li><span>{{ __('layout.contact_maria_chen') }}</span><span class="fb-contact-status" aria-label="{{ __('layout.contact_status_online') }}"></span></li>
+                        <li><span>{{ __('layout.contact_khaled_noor') }}</span><span class="fb-contact-status" aria-label="{{ __('layout.contact_status_online') }}"></span></li>
+                        <li><span>{{ __('layout.contact_isabella_rossi') }}</span><span class="fb-contact-status" aria-label="{{ __('layout.contact_status_online') }}"></span></li>
                     </ul>
                 </article>
             </aside>
