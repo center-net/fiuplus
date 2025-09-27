@@ -58,9 +58,30 @@
                         @endforeach
                     </div>
                 </div>
-                <div class="fb-profile-mini" aria-label="{{ __('layout.profile_menu_label') }}">
-                    <div class="fb-avatar" aria-hidden="true">{{ $user ? mb_substr($user->name, 0, 1) : __('layout.user_guest_initial') }}</div>
-                    <span>{{ $user->name ?? __('layout.user_guest') }}</span>
+                <div class="fb-profile-menu" data-profile-menu>
+                    <button class="fb-profile-mini" type="button" aria-label="{{ __('layout.profile_menu_label') }}" aria-haspopup="true"
+                        aria-expanded="false" aria-controls="profileMenuDropdown">
+                        <div class="fb-avatar" aria-hidden="true">
+                            @if ($user && $user->getAvatarUrl())
+                                <img src="{{ $user->getAvatarUrl() }}" alt="{{ $user->name }}" width="32" height="32"
+                                    class="rounded-circle">
+                            @else
+                                <span>{{ $user ? mb_substr($user->name, 0, 1) : __('layout.user_guest_initial') }}</span>
+                            @endif
+                        </div>
+                        <span>{{ $user->name ?? __('layout.user_guest') }}</span>
+                        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <ul id="profileMenuDropdown" class="fb-profile-dropdown" role="menu" hidden>
+                        <li role="none"><a role="menuitem" href="{{ url('/profile') }}">{{ __('layout.profile_menu_profile') }}</a></li>
+                        <li role="none"><a role="menuitem" href="{{ url('/settings') }}">{{ __('layout.profile_menu_settings') }}</a></li>
+                        <li role="none">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit">{{ __('layout.profile_menu_logout') }}</button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>
@@ -164,6 +185,102 @@
             </aside>
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileMenu = document.querySelector('[data-profile-menu]');
+            if (!profileMenu) {
+                return;
+            }
+
+            const toggleButton = profileMenu.querySelector('.fb-profile-mini');
+            const dropdown = profileMenu.querySelector('.fb-profile-dropdown');
+            const focusableSelector = 'a[href], button:not([disabled])';
+
+            const closeMenu = () => {
+                if (!profileMenu.classList.contains('open')) {
+                    return;
+                }
+
+                profileMenu.classList.remove('open');
+                toggleButton.setAttribute('aria-expanded', 'false');
+                dropdown.hidden = true;
+            };
+
+            const openMenu = () => {
+                if (profileMenu.classList.contains('open')) {
+                    return;
+                }
+
+                profileMenu.classList.add('open');
+                toggleButton.setAttribute('aria-expanded', 'true');
+                dropdown.hidden = false;
+            };
+
+            const toggleMenu = () => {
+                if (profileMenu.classList.contains('open')) {
+                    closeMenu();
+                    return;
+                }
+
+                openMenu();
+                const [firstItem] = dropdown.querySelectorAll(focusableSelector);
+                if (firstItem) {
+                    firstItem.focus({ preventScroll: true });
+                }
+            };
+
+            toggleButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                toggleMenu();
+            });
+
+            toggleButton.addEventListener('keydown', (event) => {
+                const { key } = event;
+                if (key === 'Enter' || key === ' ') {
+                    event.preventDefault();
+                    toggleMenu();
+                } else if (key === 'ArrowDown') {
+                    event.preventDefault();
+                    openMenu();
+                    const [firstItem] = dropdown.querySelectorAll(focusableSelector);
+                    if (firstItem) {
+                        firstItem.focus({ preventScroll: true });
+                    }
+                } else if (key === 'Escape') {
+                    event.preventDefault();
+                    closeMenu();
+                }
+            });
+
+            dropdown.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeMenu();
+                    toggleButton.focus({ preventScroll: true });
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!profileMenu.contains(event.target)) {
+                    closeMenu();
+                }
+            });
+
+            profileMenu.addEventListener('focusout', (event) => {
+                const nextFocused = event.relatedTarget;
+                if (!nextFocused || !profileMenu.contains(nextFocused)) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeMenu();
+                }
+            });
+        });
+    </script>
 
     <script>
         document.addEventListener('livewire:init', () => {
