@@ -6,7 +6,10 @@
 </head>
 
 <body>
-    @php($user = auth()->user())
+    @php
+        $user = auth()->user();
+        $showRightColumn = request()->routeIs('admin.dashboard');
+    @endphp
     <div class="fb-app">
         <header class="fb-topbar">
             <div class="fb-logo">
@@ -73,7 +76,7 @@
                         <i class="fas fa-chevron-down" aria-hidden="true"></i>
                     </button>
                     <ul id="profileMenuDropdown" class="fb-profile-dropdown" role="menu" hidden>
-                        <li role="none"><a role="menuitem" href="{{ url('/profile') }}">{{ __('layout.profile_menu_profile') }}</a></li>
+                        <li role="none"><a role="menuitem" href="{{ $user ? route('profile.show', $user->username) : route('login') }}">{{ __('layout.profile_menu_profile') }}</a></li>
                         <li role="none"><a role="menuitem" href="{{ url('/settings') }}">{{ __('layout.profile_menu_settings') }}</a></li>
                         <li role="none">
                             <form method="POST" action="{{ route('logout') }}">
@@ -86,7 +89,7 @@
             </div>
         </header>
 
-        <main class="fb-layout">
+        <main class="fb-layout {{ $showRightColumn ? '' : 'fb-layout--no-right' }}">
             <aside class="fb-column fb-column-left" aria-label="{{ __('layout.left_nav_label') }}">
                 <article class="fb-card">
                     <h2>{{ __('layout.left_menu_title') }}</h2>
@@ -147,7 +150,7 @@
                 </div>
             </section>
 
-            <aside class="fb-column fb-column-right" aria-label="{{ __('layout.right_sidebar_label') }}">
+            <aside class="fb-column fb-column-right {{ $showRightColumn ? '' : 'd-none' }}" aria-label="{{ __('layout.right_sidebar_label') }}">
                 <article class="fb-card">
                     <h2>{{ __('layout.events_title') }}</h2>
                     <ul class="fb-menu-list">

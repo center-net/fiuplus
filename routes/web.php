@@ -13,6 +13,7 @@ use App\Http\Livewire\Dashboard\Cities\Index as CitiesIndex;
 use App\Http\Livewire\Dashboard\Villages\Index as VillagesIndex;
 use App\Http\Livewire\Dashboard\Stores\Index as StoresIndex;
 use App\Http\Livewire\Dashboard\StoreCategories\Index as StoreCategoriesIndex;
+use App\Http\Livewire\Profile\Show as ProfileShow;
 use App\Http\Livewire\Auth\Login;
 // use App\Http\Livewire\Auth\Register;
 
@@ -69,6 +70,10 @@ Route::group(
             // Merchant store setup (forces merchants with inactive store to complete setup)
             Route::get('/merchant/store/setup', \App\Http\Livewire\Merchant\Store\Setup::class)
                 ->name('merchant.store.setup');
+
+            // Profile page
+            Route::get('/profile/{user:username?}', ProfileShow::class)
+                ->name('profile.show');
         });
    
     }
