@@ -281,7 +281,7 @@ a {
     grid-template-columns: var(--fb-layout-left-width) minmax(0, 720px) var(--fb-layout-right-width);
     grid-template-areas: "left center right";
    
-    padding: 1.5rem clamp(1rem, 4vw, 3rem);
+
     margin-top: 0.5rem;
     align-items: start;
 }

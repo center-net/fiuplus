@@ -1,5 +1,6 @@
 <div class="container py-4 fb-profile-page">
-    <header class="card border-0 shadow-sm overflow-hidden mb-4 fb-profile-cover">
+    @section('modals')
+    <header class="card border-0 shadow-sm overflow-hidden fb-profile-cover">
         <div class="fb-cover-photo position-relative">
             <img src="{{ $profileUser->profile?->getCoverPhotoUrl() ?? asset('images/profile/default-cover.jpg') }}" alt="{{ $profileUser->name }} cover image" class="img-fluid w-100 object-fit-cover" style="height: 280px; object-fit: cover;">
         </div>
@@ -57,7 +58,7 @@
             </div>
         </div>
     </header>
-
+@endsection
     <div class="d-flex flex-column flex-lg-row gap-4 fb-profile-body">
         <aside class="col-lg-4 col-xl-3 order-2 order-lg-1 fb-profile-sidebar d-none d-lg-block" aria-label="{{ __('profile.sidebar_about_label') }}">
             <section class="card shadow-sm mb-4 fb-card">
