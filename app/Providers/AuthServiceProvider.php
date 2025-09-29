@@ -7,11 +7,13 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Store;
 use App\Models\StoreCategory;
+use App\Models\Profile;
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\StorePolicy;
 use App\Policies\StoreCategoryPolicy;
+use App\Policies\ProfilePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -28,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         Permission::class => PermissionPolicy::class,
         Store::class => StorePolicy::class,
         StoreCategory::class => StoreCategoryPolicy::class,
+        Profile::class => ProfilePolicy::class,
     ];
 
     /**

@@ -46,14 +46,17 @@
             }
         });
 
-        // Livewire event to close Bootstrap modal
-        Livewire.on('closeModalEvent', () => {
-            const modalElement = document.getElementById('userFormModal');
-            if (modalElement) {
-                const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(
-                    modalElement);
-                modal.hide();
-            }
+        // Livewire event to close Bootstrap modals generically
+        Livewire.on('closeModalEvent', (modalId = null) => {
+            const idsToClose = Array.isArray(modalId) ? modalId : [modalId ?? 'userFormModal'];
+            idsToClose.forEach((targetId) => {
+                const modalElement = document.getElementById(targetId);
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
+            });
         });
     });
 </script>
+@stack('scripts')

@@ -145,3 +145,109 @@
         <span class="badge bg-info">{{ __('app.updating') }}</span>
     </div>
 </div>
+
+@script
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            // Function to close user form modal
+            function closeUserModal() {
+                const modalElement = document.getElementById('userFormModal');
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
+            }
+
+            // Function to close user permissions modal
+            function closeUserPermissionsModal() {
+                const modalElement = document.getElementById('userPermissionsModal');
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
+            }
+
+            // Function to close store form modal
+            function closeStoreModal() {
+                const modalElement = document.getElementById('storeFormModal');
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    modal.hide();
+                }
+            }
+
+            // Listen for multiple events to close modals
+            Livewire.on('closeModal', () => {
+                closeUserModal();
+                closeUserPermissionsModal();
+                closeStoreModal();
+            });
+
+            Livewire.on('userSaved', () => {
+                setTimeout(() => {
+                    closeUserModal();
+                    closeUserPermissionsModal();
+                }, 1500); // Wait 1.5 seconds to show the success message
+            });
+
+            Livewire.on('storeSaved', () => {
+                setTimeout(() => {
+                    closeStoreModal();
+                }, 1500); // Wait 1.5 seconds to show the success message
+            });
+
+            Livewire.on('closeModalEvent', (data) => {
+                if (data && data[0] === 'userFormModal') {
+                    closeUserModal();
+                }
+            });
+
+            // Listen for success toast and close modal
+            Livewire.on('show-toast', (event) => {
+                if (event.type === 'success' || event.message.includes('بنجاح')) {
+                    setTimeout(() => {
+                        if (event.message.includes('صلاحيات')) {
+                            closeUserPermissionsModal();
+                        } else if (event.message.includes('المتجر')) {
+                            closeStoreModal();
+                        } else {
+                            closeUserModal();
+                        }
+                    }, 1500);
+                }
+            });
+
+            // Monitor form submission state
+            let isSubmitting = false;
+            
+            // Watch for loading state changes
+            document.addEventListener('livewire:loading', (event) => {
+                if (event.detail.component.name === 'dashboard.users.form') {
+                    isSubmitting = true;
+                }
+            });
+
+            document.addEventListener('livewire:loaded', (event) => {
+                if (event.detail.component.name === 'dashboard.users.form' && isSubmitting) {
+                    // Check if there are no validation errors
+                    setTimeout(() => {
+                        const errorElements = document.querySelectorAll('#userFormModal .invalid-feedback');
+                        const hasErrors = Array.from(errorElements).some(el => el.textContent.trim() !== '');
+                        
+                        if (!hasErrors) {
+                            // No errors, close modal after a short delay
+                            setTimeout(() => {
+                                closeUserModal();
+                                isSubmitting = false;
+                            }, 1500);
+                        } else {
+                            isSubmitting = false;
+                        }
+                    }, 100);
+                }
+            });
+        });
+    </script>
+@endscript
+
+

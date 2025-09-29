@@ -1,7 +1,7 @@
 <div class="container py-4 fb-profile-page">
     <header class="card border-0 shadow-sm overflow-hidden mb-4 fb-profile-cover">
         <div class="fb-cover-photo position-relative">
-            <img src="{{ $profileUser->cover_photo_url ?? asset('images/profile/default-cover.jpg') }}" alt="{{ $profileUser->name }} cover image" class="img-fluid w-100 object-fit-cover" style="height: 280px; object-fit: cover;">
+            <img src="{{ $profileUser->profile?->getCoverPhotoUrl() ?? asset('images/profile/default-cover.jpg') }}" alt="{{ $profileUser->name }} cover image" class="img-fluid w-100 object-fit-cover" style="height: 280px; object-fit: cover;">
         </div>
         <div class="card-body pt-0">
             <div class="row g-4 align-items-end fb-profile-header">
@@ -22,17 +22,22 @@
                                 </span>
                                 <span class="d-inline-flex align-items-center gap-2">
                                     <i class="fas fa-briefcase text-primary" aria-hidden="true"></i>
-                                    {{ $profileUser->job_title ?? __('profile.job_not_set') }}
+                                    {{ $profileUser->profile?->job_title ?? __('profile.job_not_set') }}
                                 </span>
                                 <span class="d-inline-flex align-items-center gap-2">
                                     <i class="fas fa-graduation-cap text-primary" aria-hidden="true"></i>
-                                    {{ $profileUser->education ?? __('profile.education_not_set') }}
+                                    {{ $profileUser->profile?->education ?? __('profile.education_not_set') }}
+                                </span>
+                                <span class="d-inline-flex align-items-center gap-2">
+                                    <i class="fas fa-birthday-cake text-primary" aria-hidden="true"></i>
+                                    {{ optional($profileUser->profile?->date_of_birth)->translatedFormat(__('profile.birthdate_format')) ?? __('profile.birthdate_not_set') }}
                                 </span>
                             </div>
                         </div>
                         <div class="fb-profile-actions d-flex flex-wrap gap-2">
                             @if ($canEditProfile)
-                                <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button">
+                                <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" 
+                                        data-bs-toggle="modal" data-bs-target="#editProfileModal">
                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                     {{ __('profile.edit_profile_button') }}
                                 </button>
@@ -63,15 +68,19 @@
                     <ul class="list-unstyled mb-0 fb-about-list">
                         <li class="mb-3">
                             <strong class="d-block text-uppercase text-secondary small">{{ __('profile.about_bio') }}</strong>
-                            <p class="mb-0">{{ $profileUser->bio ?? __('profile.bio_not_set') }}</p>
+                            <p class="mb-0">{{ $profileUser->profile?->bio ?? __('profile.bio_not_set') }}</p>
                         </li>
                         <li class="mb-3">
                             <strong class="d-block text-uppercase text-secondary small">{{ __('profile.about_work') }}</strong>
-                            <p class="mb-0">{{ $profileUser->job_title ?? __('profile.job_not_set') }}</p>
+                            <p class="mb-0">{{ $profileUser->profile?->job_title ?? __('profile.job_not_set') }}</p>
                         </li>
                         <li class="mb-3">
                             <strong class="d-block text-uppercase text-secondary small">{{ __('profile.about_education') }}</strong>
-                            <p class="mb-0">{{ $profileUser->education ?? __('profile.education_not_set') }}</p>
+                            <p class="mb-0">{{ $profileUser->profile?->education ?? __('profile.education_not_set') }}</p>
+                        </li>
+                        <li class="mb-3">
+                            <strong class="d-block text-uppercase text-secondary small">{{ __('profile.about_birthdate') }}</strong>
+                            <p class="mb-0">{{ optional($profileUser->profile?->date_of_birth)->translatedFormat(__('profile.birthdate_format')) ?? __('profile.birthdate_not_set') }}</p>
                         </li>
                         <li class="mb-3">
                             <strong class="d-block text-uppercase text-secondary small">{{ __('profile.about_location') }}</strong>
@@ -194,4 +203,9 @@
             @endif
         </main>
     </div>
+
+    <!-- Include Edit Profile Modal -->
+    @if ($canEditProfile)
+        @livewire('profile.edit')
+    @endif
 </div>

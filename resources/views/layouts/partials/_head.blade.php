@@ -17,4 +17,5 @@
 <link href="{{ asset('css/all.min.css') }}" rel="stylesheet">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 <link href="{{ asset('css/fb-layout.css') }}" rel="stylesheet">
+@stack('styles')
 @livewireStyles

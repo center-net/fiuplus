@@ -41,12 +41,18 @@ class Show extends Component
     public array $privacyOptions = [];
 
     /**
+     * Livewire listeners.
+     */
+    protected $listeners = ['profileUpdated' => 'refreshProfile'];
+
+    /**
      * Mount the component with a resolved user.
      */
     public function mount(?User $user = null): void
     {
         $viewer = auth()->user();
         $this->profileUser = $user ?? $viewer ?? abort(404);
+        $this->profileUser->loadMissing(['profile.translations', 'settings']);
 
         $this->loadPrivacyOptions();
         $this->privacySetting = $this->profileUser->profile_visibility ?? 'public';
@@ -71,10 +77,12 @@ class Show extends Component
             return;
         }
 
-        $this->profileUser->forceFill([
+        $settings = $this->profileUser->settings()->updateOrCreate([], [
             'profile_visibility' => $option,
-        ])->save();
+            'preferred_locale' => $this->profileUser->settings?->preferred_locale,
+        ]);
 
+        $this->profileUser->setRelation('settings', $settings);
         $this->privacySetting = $option;
         $this->canView = $this->checkAccess(auth()->user());
     }
@@ -134,6 +142,16 @@ class Show extends Component
     public function canEditProfile(): bool
     {
         return auth()->id() === $this->profileUser->id || Gate::allows('update', $this->profileUser);
+    }
+
+    /**
+     * Refresh profile data after update.
+     */
+    public function refreshProfile(): void
+    {
+        $this->profileUser->refresh();
+        $this->profileUser->loadMissing(['profile.translations', 'settings']);
+        $this->privacySetting = $this->profileUser->profile_visibility ?? 'public';
     }
 
     public function render()

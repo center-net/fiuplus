@@ -2,7 +2,7 @@
 {{-- $id: Modal ID --}}
 {{-- $size: Modal size class, e.g., 'modal-lg' --}}
 {{-- $title: Modal title --}}
-@props(['id', 'size' => 'modal-lg', 'title' => 'Modal Title'])
+@props(['id', 'size' => 'modal-lg', 'title' => 'Modal Title', 'formId' => null])
 
 <div class="modal fade" id="{{ $id }}" tabindex="-1" aria-labelledby="{{ $id }}Label" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog {{ $size }}">
@@ -17,7 +17,7 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('app.cancel') }}</button>
-                <button type="submit" class="btn btn-primary">{{ __('app.save') }}</button>
+                <button type="submit" @if($formId) form="{{ $formId }}" @endif class="btn btn-primary">{{ __('app.save') }}</button>
             </div>
         </div>
     </div>

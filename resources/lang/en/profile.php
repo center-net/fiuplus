@@ -42,12 +42,34 @@ return [
     'about_education' => 'Education',
     'about_location' => 'Lives in',
     'about_contact' => 'Contact',
+    'about_birthdate' => 'Birthday',
 
     'bio_not_set' => 'No bio available yet.',
     'job_not_set' => 'No workplace listed.',
     'education_not_set' => 'No education information.',
     'location_not_set' => 'Location not specified.',
     'contact_not_set' => 'Contact information not provided.',
+    'birthdate_not_set' => 'Birthday not provided.',
+
+    'birthdate_format' => 'F j, Y',
+
+    'preferences_title' => 'Preferences',
+    'preferences_locale_label' => 'Preferred language',
+    'preferences_locale_not_set' => 'No language preference set.',
+    'preferences_locale_options' => [
+        'en' => 'English',
+        'ar' => 'Arabic',
+    ],
+
+    'form_bio_label' => 'Bio',
+    'form_job_label' => 'Job title',
+    'form_education_label' => 'Education',
+    'form_birthdate_label' => 'Date of birth',
+    'form_cover_photo_label' => 'Cover photo',
+    'form_avatar_label' => 'Profile picture',
+    'form_preferences_heading' => 'Preferences',
+    'form_privacy_label' => 'Who can see your profile?',
+    'form_locale_label' => 'Preferred language',
 
     'edit_profile_button' => 'Edit profile',
     'add_friend_button' => 'Add friend',
@@ -57,4 +79,41 @@ return [
     'tab_about' => 'About',
     'tab_friends' => 'Friends',
     'tab_photos' => 'Photos',
+
+    // Edit Profile Form
+    'form_username_label' => 'Username',
+    'form_name_label' => 'Full Name',
+    'form_email_label' => 'Email Address',
+    'form_phone_label' => 'Phone Number',
+    'form_country_label' => 'Country',
+    'form_city_label' => 'City',
+    'form_village_label' => 'Village',
+    
+    'form_name_placeholder' => 'Enter your full name',
+    'form_email_placeholder' => 'Enter your email address',
+    'form_phone_placeholder' => 'Enter your phone number',
+    'form_bio_placeholder' => 'Write something about yourself...',
+    'form_job_placeholder' => 'Enter your job title',
+    'form_education_placeholder' => 'Enter your education',
+    'form_country_placeholder' => 'Select country',
+    'form_city_placeholder' => 'Select city',
+    'form_village_placeholder' => 'Select village',
+    'form_locale_placeholder' => 'Select preferred language',
+    
+    'form_basic_info_heading' => 'Basic Information',
+    'form_location_heading' => 'Location Information',
+    'form_profile_info_heading' => 'Profile Information',
+    'form_photos_heading' => 'Photos',
+    
+    'form_cancel_button' => 'Cancel',
+    'form_save_button' => 'Save Changes',
+    'form_saving_button' => 'Saving...',
+    
+    'username_readonly_hint' => 'Username cannot be changed',
+    'username_readonly_description' => 'Username is your unique identifier and cannot be changed',
+    
+    'update_success' => 'Profile updated successfully',
+    'update_error' => 'An error occurred while updating profile',
+    
+    'privacy_settings_title' => 'Privacy Settings',
 ];

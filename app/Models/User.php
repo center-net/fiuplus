@@ -41,6 +41,38 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
     ];
 
     /**
+     * العلاقة مع الملف الشخصي.
+     */
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    /**
+     * العلاقة مع إعدادات المستخدم.
+     */
+    public function settings()
+    {
+        return $this->hasOne(UserSettings::class);
+    }
+
+    /**
+     * الحصول على تفضيلات الملف الشخصي (مع إنشاء افتراضي عند الحاجة).
+     */
+    public function getProfileVisibilityAttribute(): string
+    {
+        return $this->settings?->profile_visibility ?? 'public';
+    }
+
+    /**
+     * اللغة المفضلة للمستخدم.
+     */
+    public function getPreferredLocaleAttribute(): ?string
+    {
+        return $this->settings?->preferred_locale;
+    }
+
+    /**
      * القيم التي يجب إخفاؤها عند التحويل إلى JSON
      * @var array<int, string>
      */

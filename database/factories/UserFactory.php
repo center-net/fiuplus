@@ -63,6 +63,35 @@ class UserFactory extends Factory
                     $user->roles()->attach($userRole);
                 }
             }
+
+            if (! $user->profile) {
+                $dateOfBirth = fake()->optional()->dateTimeBetween('-48 years', '-18 years');
+
+                $profile = $user->profile()->create([
+                    'cover_photo' => null,
+                    'date_of_birth' => $dateOfBirth,
+                ]);
+
+                $englishFaker = fake('en_US');
+                $arabicFaker = fake('ar_SA');
+
+                $profile->translateOrNew('en')->bio = $englishFaker->paragraph();
+                $profile->translateOrNew('en')->job_title = $englishFaker->jobTitle();
+                $profile->translateOrNew('en')->education = $englishFaker->catchPhrase();
+
+                $profile->translateOrNew('ar')->bio = $arabicFaker->paragraph();
+                $profile->translateOrNew('ar')->job_title = $arabicFaker->jobTitle();
+                $profile->translateOrNew('ar')->education = $arabicFaker->catchPhrase();
+
+                $profile->save();
+            }
+
+            if (! $user->settings) {
+                $user->settings()->create([
+                    'profile_visibility' => fake()->randomElement(['public', 'friends', 'private']),
+                    'preferred_locale' => fake()->randomElement(['ar', 'en', null]),
+                ]);
+            }
         });
     }
 

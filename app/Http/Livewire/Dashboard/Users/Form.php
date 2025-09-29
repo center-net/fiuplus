@@ -215,6 +215,7 @@ class Form extends Component
 
         $this->dispatch('userSaved');
         $this->dispatch('closeModal');
+        $this->dispatch('closeModalEvent', ['userFormModal']);
         $this->resetForm();
     }
 

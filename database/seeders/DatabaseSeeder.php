@@ -33,6 +33,11 @@ class DatabaseSeeder extends Seeder
 
         // في بيئة التطوير فقط: إنشاء بيانات عشوائية للاختبار
         if (app()->environment('local')) {
+            $this->call([
+                ProfileSeeder::class,
+                UserSettingsSeeder::class,
+            ]);
+
             // إنشاء مستخدم مدير النظام (الاسم عبر الترجمة)
             /** @var \App\Models\User $admin */
             $admin = \App\Models\User::factory()->withRole('administrator')->create([

@@ -297,11 +297,9 @@
             });
             const toastBody = toastEl.querySelector('.toast-body');
 
-            Livewire.on('show-toast', ({
-                message
-            }) => {
-                if (message) {
-                    toastBody.textContent = message;
+            Livewire.on('show-toast', (event) => {
+                if (event.message) {
+                    toastBody.textContent = event.message;
                     toast.show();
                 }
             });
