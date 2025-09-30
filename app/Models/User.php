@@ -480,15 +480,18 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
     /**
      * إرسال طلب صداقة
      */
-    public function sendFriendRequest(User $user): ?Friendship
+    public function sendFriendRequest($user): ?Friendship
     {
+        // تحويل المعامل إلى ID إذا كان User object
+        $userId = $user instanceof User ? $user->id : $user;
+        
         // التحقق من عدم إرسال طلب لنفس المستخدم
-        if ($this->id === $user->id) {
+        if ($this->id === $userId) {
             return null;
         }
 
         // التحقق من عدم وجود علاقة صداقة مسبقة
-        $existingFriendship = Friendship::findBetweenUsers($this->id, $user->id);
+        $existingFriendship = Friendship::findBetweenUsers($this->id, $userId);
         if ($existingFriendship) {
             return null;
         }
@@ -496,12 +499,15 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
         // إنشاء طلب الصداقة
         $friendship = Friendship::create([
             'sender_id' => $this->id,
-            'receiver_id' => $user->id,
+            'receiver_id' => $userId,
             'status' => 'pending',
         ]);
 
-        // إنشاء إشعار
-        Notification::createFriendRequest($user, $this);
+        // إنشاء إشعار - نحتاج User object هنا
+        $userObject = $user instanceof User ? $user : User::find($userId);
+        if ($userObject) {
+            Notification::createFriendRequest($userObject, $this);
+        }
 
         return $friendship;
     }
@@ -551,20 +557,39 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
     }
 
     /**
+     * إلغاء طلب صداقة مرسل
+     */
+    public function cancelFriendRequest($receiver): bool
+    {
+        $receiverId = $receiver instanceof User ? $receiver->id : $receiver;
+        
+        $friendship = Friendship::where('sender_id', $this->id)
+            ->where('receiver_id', $receiverId)
+            ->where('status', 'pending')
+            ->first();
+
+        return $friendship ? $friendship->delete() : false;
+    }
+
+    /**
      * إلغاء الصداقة
      */
-    public function removeFriend(User $friend): bool
+    public function removeFriend($friend): bool
     {
-        $friendship = Friendship::findBetweenUsers($this->id, $friend->id);
+        $friendId = $friend instanceof User ? $friend->id : $friend;
+        
+        $friendship = Friendship::findBetweenUsers($this->id, $friendId);
         return $friendship ? $friendship->delete() : false;
     }
 
     /**
      * حظر مستخدم
      */
-    public function blockUser(User $user): bool
+    public function blockUser($user): bool
     {
-        $friendship = Friendship::findBetweenUsers($this->id, $user->id);
+        $userId = $user instanceof User ? $user->id : $user;
+        
+        $friendship = Friendship::findBetweenUsers($this->id, $userId);
         
         if ($friendship) {
             return $friendship->block();
@@ -573,7 +598,7 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
         // إنشاء علاقة حظر جديدة
         return (bool) Friendship::create([
             'sender_id' => $this->id,
-            'receiver_id' => $user->id,
+            'receiver_id' => $userId,
             'status' => 'blocked',
         ]);
     }
@@ -593,6 +618,15 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
         
         if (!$friendship) {
             return 'none';
+        }
+
+        // إذا كانت الحالة pending، نحدد ما إذا كان الطلب مرسل أو مستلم
+        if ($friendship->status === 'pending') {
+            if ($friendship->sender_id === $this->id) {
+                return 'pending_sent';
+            } else {
+                return 'pending_received';
+            }
         }
 
         return $friendship->status;

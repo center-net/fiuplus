@@ -43,8 +43,8 @@
 
                         <!-- محتوى الإشعار -->
                         <div class="notification-content">
-                            <div class="notification-title">{{ $notification->title }}</div>
-                            <div class="notification-message">{{ $notification->message }}</div>
+                            <div class="notification-title">{{ __($notification->title) }}</div>
+                            <div class="notification-message">{{ __($notification->message) }}</div>
                             <div class="notification-time">
                                 {{ $notification->created_at->diffForHumans() }}
                             </div>

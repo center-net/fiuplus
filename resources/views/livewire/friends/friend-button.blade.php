@@ -1,16 +1,21 @@
 <div class="friend-button-container">
     @if ($friendshipStatus === 'self')
         <!-- لا نعرض أي زر للمستخدم نفسه -->
-    @elseif($friendshipStatus === null)
+    @elseif($friendshipStatus === null || $friendshipStatus === 'none')
         <!-- إرسال طلب صداقة -->
         <button wire:click="sendFriendRequest" class="btn btn-primary btn-sm">
             <i class="fas fa-user-plus"></i> إضافة صديق
         </button>
     @elseif($friendshipStatus === 'pending_sent')
         <!-- طلب مرسل في انتظار الموافقة -->
-        <button class="btn btn-secondary btn-sm" disabled>
-            <i class="fas fa-clock"></i> طلب مرسل
-        </button>
+        <div class="btn-group" role="group">
+            <button class="btn btn-secondary btn-sm" disabled>
+                <i class="fas fa-clock"></i> طلب مرسل
+            </button>
+            <button wire:click="cancelFriendRequest" class="btn btn-outline-secondary btn-sm" title="إلغاء الطلب">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     @elseif($friendshipStatus === 'pending_received')
         <!-- طلب مستلم - إظهار أزرار القبول والرفض -->
         <div class="btn-group" role="group">

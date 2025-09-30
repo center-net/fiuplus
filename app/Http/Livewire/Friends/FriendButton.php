@@ -51,10 +51,10 @@ class FriendButton extends Component
         
         if ($result) {
             // إنشاء إشعار للمستخدم المستهدف
-            Notification::createFriendRequestNotification($this->targetUser->id, $currentUser->id);
+            Notification::createFriendRequest($this->targetUser, $currentUser);
             
             $this->updateFriendshipStatus();
-            $this->emit('friendRequestSent');
+            $this->dispatch('friendRequestSent');
             session()->flash('success', 'تم إرسال طلب الصداقة بنجاح');
         } else {
             session()->flash('error', 'حدث خطأ في إرسال طلب الصداقة');
@@ -72,11 +72,11 @@ class FriendButton extends Component
         
         if ($result) {
             // إنشاء إشعار للمرسل بقبول الطلب
-            Notification::createFriendAcceptedNotification($this->targetUser->id, $currentUser->id);
+            Notification::createFriendAccepted($this->targetUser, $currentUser);
             
             $this->updateFriendshipStatus();
-            $this->emit('friendRequestAccepted');
-            session()->flash('success', 'تم قبول طلب الصداقة');
+            $this->dispatch('friendRequestAccepted');
+            session()->flash('success', 'friend_accepted');
         } else {
             session()->flash('error', 'حدث خطأ في قبول طلب الصداقة');
         }
@@ -93,10 +93,28 @@ class FriendButton extends Component
         
         if ($result) {
             $this->updateFriendshipStatus();
-            $this->emit('friendRequestDeclined');
+            $this->dispatch('friendRequestDeclined');
             session()->flash('success', 'تم رفض طلب الصداقة');
         } else {
             session()->flash('error', 'حدث خطأ في رفض طلب الصداقة');
+        }
+    }
+    
+    public function cancelFriendRequest()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+        
+        $currentUser = Auth::user();
+        $result = $currentUser->cancelFriendRequest($this->targetUser->id);
+        
+        if ($result) {
+            $this->updateFriendshipStatus();
+            $this->dispatch('friendRequestCancelled');
+            session()->flash('success', 'تم إلغاء طلب الصداقة');
+        } else {
+            session()->flash('error', 'حدث خطأ في إلغاء طلب الصداقة');
         }
     }
     
@@ -111,7 +129,7 @@ class FriendButton extends Component
         
         if ($result) {
             $this->updateFriendshipStatus();
-            $this->emit('friendRemoved');
+            $this->dispatch('friendRemoved');
             session()->flash('success', 'تم إلغاء الصداقة');
         } else {
             session()->flash('error', 'حدث خطأ في إلغاء الصداقة');

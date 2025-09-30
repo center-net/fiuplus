@@ -15,6 +15,7 @@ class NotificationDropdown extends Component
     protected $listeners = [
         'friendRequestSent' => 'refreshNotifications',
         'friendRequestAccepted' => 'refreshNotifications',
+        'friendRequestCancelled' => 'refreshNotifications',
         'notificationRead' => 'refreshNotifications'
     ];
     
@@ -66,7 +67,7 @@ class NotificationDropdown extends Component
         if ($notification) {
             $notification->markAsRead();
             $this->refreshNotifications();
-            $this->emit('notificationRead');
+            $this->dispatch('notificationRead');
         }
     }
     
@@ -78,7 +79,7 @@ class NotificationDropdown extends Component
         
         Auth::user()->unreadNotifications()->update(['read_at' => now()]);
         $this->refreshNotifications();
-        $this->emit('notificationRead');
+        $this->dispatch('notificationRead');
     }
     
     public function handleNotificationAction($notificationId, $action)
@@ -102,7 +103,10 @@ class NotificationDropdown extends Component
             $result = $currentUser->acceptFriendRequest($fromUserId);
             if ($result) {
                 // إنشاء إشعار للمرسل بقبول الطلب
-                Notification::createFriendAcceptedNotification($fromUserId, $currentUser->id);
+                $fromUser = \App\Models\User::find($fromUserId);
+                if ($fromUser) {
+                    Notification::createFriendAccepted($fromUser, $currentUser);
+                }
                 $this->markAsRead($notificationId);
                 session()->flash('success', 'تم قبول طلب الصداقة');
             }
@@ -115,7 +119,7 @@ class NotificationDropdown extends Component
         }
         
         $this->refreshNotifications();
-        $this->emit('friendRequestHandled');
+        $this->dispatch('friendRequestHandled');
     }
     
     public function render()

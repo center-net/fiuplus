@@ -18,7 +18,8 @@ class FriendsList extends Component
         'friendRequestAccepted' => 'refreshData',
         'friendRequestDeclined' => 'refreshData',
         'friendRemoved' => 'refreshData',
-        'friendRequestSent' => 'refreshData'
+        'friendRequestSent' => 'refreshData',
+        'friendRequestCancelled' => 'refreshData'
     ];
     
     public function updatingSearch()
@@ -168,13 +169,14 @@ class FriendsList extends Component
                                 ->push($currentUser->id)
                                 ->unique();
         
-        $query = User::whereNotIn('id', $excludeIds);
+        $query = User::whereNotIn('id', $excludeIds)
+                     ->inRandomOrder(); // عرض المستخدمين بشكل عشوائي
         
         if ($this->search) {
             $query->where('name', 'like', '%' . $this->search . '%');
         }
         
-        return $query->paginate(12);
+        return $query->paginate(15); // عرض 15 اقتراح
     }
     
     public function render()
