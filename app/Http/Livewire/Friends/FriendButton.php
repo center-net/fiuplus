@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class FriendButton extends Component
 {
-    public $targetUser;
+    public $userId;
     public $friendshipStatus;
     
     public function mount($userId)
     {
-        $this->targetUser = User::findOrFail($userId);
+        $this->userId = $userId;
         $this->updateFriendshipStatus();
     }
     
@@ -27,12 +27,12 @@ class FriendButton extends Component
         
         $currentUser = Auth::user();
         
-        if ($currentUser->id === $this->targetUser->id) {
+        if ($currentUser->id === $this->userId) {
             $this->friendshipStatus = 'self';
             return;
         }
         
-        $this->friendshipStatus = $currentUser->getFriendshipStatus($this->targetUser->id);
+        $this->friendshipStatus = $currentUser->getFriendshipStatus($this->userId);
     }
     
     public function sendFriendRequest()
@@ -43,16 +43,21 @@ class FriendButton extends Component
         
         $currentUser = Auth::user();
         
-        if ($currentUser->id === $this->targetUser->id) {
+        if ($currentUser->id === $this->userId) {
             return;
         }
         
-        $result = $currentUser->sendFriendRequest($this->targetUser->id);
+        // التحقق من الحظر قبل الإرسال
+        $targetUser = User::find($this->userId);
+        if ($targetUser && $currentUser->isBlockedBy($targetUser)) {
+            session()->flash('error', 'لا يمكنك إرسال طلب صداقة لهذا المستخدم');
+            return;
+        }
+        
+        $result = $currentUser->sendFriendRequest($this->userId);
         
         if ($result) {
-            // إنشاء إشعار للمستخدم المستهدف
-            Notification::createFriendRequest($this->targetUser, $currentUser);
-            
+            // الإشعار يتم إنشاؤه تلقائياً في User::sendFriendRequest()
             $this->updateFriendshipStatus();
             $this->dispatch('friendRequestSent');
             session()->flash('success', 'تم إرسال طلب الصداقة بنجاح');
@@ -68,15 +73,13 @@ class FriendButton extends Component
         }
         
         $currentUser = Auth::user();
-        $result = $currentUser->acceptFriendRequest($this->targetUser->id);
+        $result = $currentUser->acceptFriendRequest($this->userId);
         
         if ($result) {
-            // إنشاء إشعار للمرسل بقبول الطلب
-            Notification::createFriendAccepted($this->targetUser, $currentUser);
-            
+            // إنشاء إشعار للمرسل بقبول الطلب - يتم في User::acceptFriendRequest()
             $this->updateFriendshipStatus();
             $this->dispatch('friendRequestAccepted');
-            session()->flash('success', 'friend_accepted');
+            session()->flash('success', 'تم قبول طلب الصداقة');
         } else {
             session()->flash('error', 'حدث خطأ في قبول طلب الصداقة');
         }
@@ -89,7 +92,7 @@ class FriendButton extends Component
         }
         
         $currentUser = Auth::user();
-        $result = $currentUser->declineFriendRequest($this->targetUser->id);
+        $result = $currentUser->declineFriendRequest($this->userId);
         
         if ($result) {
             $this->updateFriendshipStatus();
@@ -107,7 +110,7 @@ class FriendButton extends Component
         }
         
         $currentUser = Auth::user();
-        $result = $currentUser->cancelFriendRequest($this->targetUser->id);
+        $result = $currentUser->cancelFriendRequest($this->userId);
         
         if ($result) {
             $this->updateFriendshipStatus();
@@ -125,7 +128,7 @@ class FriendButton extends Component
         }
         
         $currentUser = Auth::user();
-        $result = $currentUser->removeFriend($this->targetUser->id);
+        $result = $currentUser->removeFriend($this->userId);
         
         if ($result) {
             $this->updateFriendshipStatus();
@@ -134,6 +137,30 @@ class FriendButton extends Component
         } else {
             session()->flash('error', 'حدث خطأ في إلغاء الصداقة');
         }
+    }
+    
+    public function blockUser()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+        
+        $currentUser = Auth::user();
+        $result = $currentUser->blockUser($this->userId);
+        
+        if ($result) {
+            $this->updateFriendshipStatus();
+            $this->dispatch('userBlocked');
+            session()->flash('success', 'تم حظر المستخدم بنجاح');
+        } else {
+            session()->flash('error', 'حدث خطأ في حظر المستخدم');
+        }
+    }
+    
+    public function getUserUsernameProperty()
+    {
+        $user = User::find($this->userId);
+        return $user ? $user->username : $this->userId;
     }
     
     public function render()

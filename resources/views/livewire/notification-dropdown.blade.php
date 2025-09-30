@@ -54,13 +54,19 @@
                                 <div class="notification-actions mt-2">
                                     <button
                                         wire:click.stop="handleNotificationAction({{ $notification->id }}, 'accept')"
-                                        class="btn btn-success btn-sm me-2">
+                                        class="btn btn-success btn-sm">
                                         <i class="fas fa-check"></i> قبول
                                     </button>
                                     <button
                                         wire:click.stop="handleNotificationAction({{ $notification->id }}, 'decline')"
                                         class="btn btn-outline-secondary btn-sm">
                                         <i class="fas fa-times"></i> رفض
+                                    </button>
+                                    <button
+                                        wire:click.stop="handleNotificationAction({{ $notification->id }}, 'block')"
+                                        class="btn btn-dark btn-sm"
+                                        onclick="return confirm('هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مشاهدة ملفك الشخصي أو إرسال طلبات صداقة أو رسائل لك.')">
+                                        <i class="fas fa-ban"></i> حظر
                                     </button>
                                 </div>
                             @endif

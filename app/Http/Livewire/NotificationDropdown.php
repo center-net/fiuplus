@@ -16,7 +16,8 @@ class NotificationDropdown extends Component
         'friendRequestSent' => 'refreshNotifications',
         'friendRequestAccepted' => 'refreshNotifications',
         'friendRequestCancelled' => 'refreshNotifications',
-        'notificationRead' => 'refreshNotifications'
+        'notificationRead' => 'refreshNotifications',
+        'userBlocked' => 'refreshNotifications'
     ];
     
     public function mount()
@@ -34,15 +35,30 @@ class NotificationDropdown extends Component
         
         $user = Auth::user();
         
-        // جلب آخر 10 إشعارات
+        // جلب آخر 10 إشعارات وفلترة الإشعارات من المستخدمين المحظورين
         $this->notifications = $user->notifications()
             ->with('fromUser')
             ->orderBy('created_at', 'desc')
             ->limit(10)
-            ->get();
+            ->get()
+            ->filter(function ($notification) use ($user) {
+                // إخفاء الإشعارات من المستخدمين المحظورين
+                if ($notification->fromUser) {
+                    return !$user->isBlockedBy($notification->fromUser) && !$user->hasBlocked($notification->fromUser);
+                }
+                return true;
+            });
         
-        // عدد الإشعارات غير المقروءة
-        $this->unreadCount = $user->unreadNotifications()->count();
+        // عدد الإشعارات غير المقروءة (مع فلترة المحظورين)
+        $this->unreadCount = $user->unreadNotifications()
+            ->get()
+            ->filter(function ($notification) use ($user) {
+                if ($notification->fromUser) {
+                    return !$user->isBlockedBy($notification->fromUser) && !$user->hasBlocked($notification->fromUser);
+                }
+                return true;
+            })
+            ->count();
     }
     
     public function toggleDropdown()
@@ -115,6 +131,13 @@ class NotificationDropdown extends Component
             if ($result) {
                 $this->markAsRead($notificationId);
                 session()->flash('success', 'تم رفض طلب الصداقة');
+            }
+        } elseif ($action === 'block' && $notification->type === 'friend_request') {
+            $result = $currentUser->blockUser($fromUserId);
+            if ($result) {
+                $this->markAsRead($notificationId);
+                $this->dispatch('userBlocked');
+                session()->flash('success', 'تم حظر المستخدم بنجاح');
             }
         }
         

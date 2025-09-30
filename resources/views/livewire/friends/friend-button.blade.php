@@ -3,39 +3,75 @@
         <!-- لا نعرض أي زر للمستخدم نفسه -->
     @elseif($friendshipStatus === null || $friendshipStatus === 'none')
         <!-- إرسال طلب صداقة -->
-        <button wire:click="sendFriendRequest" class="btn btn-primary btn-sm">
-            <i class="fas fa-user-plus"></i> إضافة صديق
-        </button>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{{ route('profile.show', ['user' => $this->userUsername]) }}" class="btn btn-outline-primary btn-sm" title="الملف الشخصي">
+                <i class="fas fa-user"></i>
+            </a>
+            <button wire:click="sendFriendRequest" class="btn btn-primary btn-sm" wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="sendFriendRequest">
+                    <i class="fas fa-user-plus"></i> إضافة صديق
+                </span>
+                <span wire:loading wire:target="sendFriendRequest">
+                    <i class="fas fa-spinner fa-spin"></i> جاري الإرسال...
+                </span>
+            </button>
+        </div>
     @elseif($friendshipStatus === 'pending_sent')
         <!-- طلب مرسل في انتظار الموافقة -->
-        <div class="btn-group" role="group">
-            <button class="btn btn-secondary btn-sm" disabled>
-                <i class="fas fa-clock"></i> طلب مرسل
-            </button>
-            <button wire:click="cancelFriendRequest" class="btn btn-outline-secondary btn-sm" title="إلغاء الطلب">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{{ route('profile.show', ['user' => $this->userUsername]) }}" class="btn btn-outline-primary btn-sm" title="الملف الشخصي">
+                <i class="fas fa-user"></i>
+            </a>
+            <div class="btn-group" role="group">
+                <button class="btn btn-secondary btn-sm" disabled>
+                    <i class="fas fa-clock"></i> طلب مرسل
+                </button>
+                <button wire:click="cancelFriendRequest" class="btn btn-outline-secondary btn-sm" title="إلغاء الطلب">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
     @elseif($friendshipStatus === 'pending_received')
-        <!-- طلب مستلم - إظهار أزرار القبول والرفض -->
-        <div class="btn-group" role="group">
-            <button wire:click="acceptFriendRequest" class="btn btn-success btn-sm">
-                <i class="fas fa-check"></i> قبول
-            </button>
-            <button wire:click="declineFriendRequest" class="btn btn-danger btn-sm">
-                <i class="fas fa-times"></i> رفض
-            </button>
+        <!-- طلب مستلم - إظهار أزرار القبول والرفض والحظر -->
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{{ route('profile.show', ['user' => $this->userUsername]) }}" class="btn btn-outline-primary btn-sm" title="الملف الشخصي">
+                <i class="fas fa-user"></i>
+            </a>
+            <div class="btn-group" role="group">
+                <button wire:click="acceptFriendRequest" class="btn btn-success btn-sm">
+                    <i class="fas fa-check"></i> قبول
+                </button>
+                <button wire:click="declineFriendRequest" class="btn btn-danger btn-sm">
+                    <i class="fas fa-times"></i> رفض
+                </button>
+                <button wire:click="blockUser" class="btn btn-dark btn-sm" 
+                        onclick="return confirm('هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مشاهدة ملفك الشخصي أو إرسال طلبات صداقة أو رسائل لك.')">
+                    <i class="fas fa-ban"></i> حظر
+                </button>
+            </div>
         </div>
     @elseif($friendshipStatus === 'accepted')
-        <!-- أصدقاء - إظهار زر إلغاء الصداقة -->
+        <!-- أصدقاء - إظهار زر إلغاء الصداقة والحظر -->
         <div class="dropdown">
             <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 <i class="fas fa-user-check"></i> أصدقاء
             </button>
             <ul class="dropdown-menu">
                 <li>
+                    <a href="{{ route('profile.show', ['user' => $this->userUsername]) }}" class="dropdown-item">
+                        <i class="fas fa-user"></i> الملف الشخصي
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
                     <button wire:click="removeFriend" class="dropdown-item text-danger">
                         <i class="fas fa-user-minus"></i> إلغاء الصداقة
+                    </button>
+                </li>
+                <li>
+                    <button wire:click="blockUser" class="dropdown-item text-dark"
+                            onclick="return confirm('هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من مشاهدة ملفك الشخصي أو إرسال طلبات صداقة أو رسائل لك.')">
+                        <i class="fas fa-ban"></i> حظر المستخدم
                     </button>
                 </li>
             </ul>
@@ -102,6 +138,25 @@
             font-size: 0.875rem;
             padding: 0.5rem 0.75rem;
             margin-bottom: 0;
+        }
+        
+        /* دعم gap للمتصفحات القديمة */
+        .friend-button-container .d-flex.gap-2 > * {
+            margin-left: 0.5rem;
+        }
+        
+        .friend-button-container .d-flex.gap-2 > *:first-child {
+            margin-left: 0;
+        }
+        
+        /* تحسين زر الملف الشخصي */
+        .friend-button-container .btn-outline-primary {
+            border-width: 2px;
+        }
+        
+        .friend-button-container .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
         }
     </style>
 </div>

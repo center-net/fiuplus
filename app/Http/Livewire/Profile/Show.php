@@ -36,6 +36,11 @@ class Show extends Component
     public bool $canView = false;
 
     /**
+     * Whether the viewer is blocked by the profile owner.
+     */
+    public bool $isBlocked = false;
+
+    /**
      * Privacy options map.
      */
     public array $privacyOptions = [];
@@ -43,7 +48,13 @@ class Show extends Component
     /**
      * Livewire listeners.
      */
-    protected $listeners = ['profileUpdated' => 'refreshProfile'];
+    protected $listeners = [
+        'profileUpdated' => 'refreshProfile',
+        'userBlocked' => 'handleUserBlocked',
+        'friendRequestSent' => 'refreshProfile',
+        'friendRequestAccepted' => 'refreshProfile',
+        'friendRemoved' => 'refreshProfile',
+    ];
 
     /**
      * Mount the component with a resolved user.
@@ -57,6 +68,12 @@ class Show extends Component
         $this->loadPrivacyOptions();
         $this->privacySetting = $this->profileUser->profile_visibility ?? 'public';
         $this->viewerRelationship = $this->determineRelationship($viewer);
+        
+        // Check if viewer is blocked
+        if ($viewer && $viewer->id !== $this->profileUser->id) {
+            $this->isBlocked = $viewer->isBlockedBy($this->profileUser);
+        }
+        
         $this->canView = $this->checkAccess($viewer);
 
         if (! $this->canView) {
@@ -109,6 +126,11 @@ class Show extends Component
      */
     protected function checkAccess(?User $viewer): bool
     {
+        // If viewer is blocked, deny access
+        if ($this->isBlocked) {
+            return false;
+        }
+        
         return match ($this->privacySetting) {
             'public' => true,
             'friends' => $this->viewerRelationship === 'friend' || $this->viewerRelationship === 'self',
@@ -144,6 +166,16 @@ class Show extends Component
         return auth()->id() === $this->profileUser->id || Gate::allows('update', $this->profileUser);
     }
 
+    #[Computed]
+    public function friendshipStatus(): ?string
+    {
+        if (!auth()->check()) {
+            return null;
+        }
+        
+        return auth()->user()->getFriendshipStatus($this->profileUser->id);
+    }
+
     /**
      * Refresh profile data after update.
      */
@@ -152,6 +184,16 @@ class Show extends Component
         $this->profileUser->refresh();
         $this->profileUser->loadMissing(['profile.translations', 'settings']);
         $this->privacySetting = $this->profileUser->profile_visibility ?? 'public';
+    }
+
+    /**
+     * Handle user blocked event.
+     */
+    public function handleUserBlocked()
+    {
+        // Redirect to home or show message
+        session()->flash('success', 'تم حظر المستخدم بنجاح');
+        return redirect()->route('friends.index');
     }
 
     public function render()

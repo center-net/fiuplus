@@ -35,7 +35,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="fb-profile-actions d-flex flex-wrap gap-2">
+                        <div class="fb-profile-actions d-flex flex-wrap gap-2 align-self-start">
                             @if ($canEditProfile)
                                 <button class="btn btn-primary d-inline-flex align-items-center gap-2" type="button" 
                                         data-bs-toggle="modal" data-bs-target="#editProfileModal">
@@ -43,14 +43,7 @@
                                     {{ __('profile.edit_profile_button') }}
                                 </button>
                             @else
-                                <button class="btn btn-outline-primary d-inline-flex align-items-center gap-2" type="button">
-                                    <i class="fas fa-user-plus" aria-hidden="true"></i>
-                                    {{ __('profile.add_friend_button') }}
-                                </button>
-                                <button class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" type="button">
-                                    <i class="fas fa-comment" aria-hidden="true"></i>
-                                    {{ __('profile.message_button') }}
-                                </button>
+                                @livewire('friends.friend-button', ['userId' => $profileUser->id], key('profile-friend-button-'.$profileUser->id))
                             @endif
                         </div>
                     </div>
@@ -130,9 +123,15 @@
             @if (! $canView)
                 <div class="card shadow-sm fb-empty-state text-center text-muted">
                     <div class="card-body py-5">
-                        <i class="fas fa-lock fa-2x mb-3" aria-hidden="true"></i>
-                        <h2 class="h5">{{ __('profile.restricted_title') }}</h2>
-                        <p class="mb-0">{{ __('profile.restricted_description.' . $privacySetting) }}</p>
+                        @if ($isBlocked)
+                            <i class="fas fa-ban fa-2x mb-3 text-danger" aria-hidden="true"></i>
+                            <h2 class="h5">لا يمكنك الوصول لهذا الملف الشخصي</h2>
+                            <p class="mb-0">تم حظرك من قبل هذا المستخدم</p>
+                        @else
+                            <i class="fas fa-lock fa-2x mb-3" aria-hidden="true"></i>
+                            <h2 class="h5">{{ __('profile.restricted_title') }}</h2>
+                            <p class="mb-0">{{ __('profile.restricted_description.' . $privacySetting) }}</p>
+                        @endif
                     </div>
                 </div>
             @else

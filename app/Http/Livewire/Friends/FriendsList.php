@@ -80,7 +80,9 @@ class FriendsList extends Component
         
         if ($this->search) {
             $friends = $friends->filter(function($friend) {
-                return stripos($friend->name, $this->search) !== false;
+                return stripos($friend->name, $this->search) !== false ||
+                       stripos($friend->username, $this->search) !== false ||
+                       stripos($friend->email, $this->search) !== false;
             });
         }
         
@@ -109,7 +111,9 @@ class FriendsList extends Component
         
         if ($this->search) {
             $query->whereHas('sender', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('username', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
         
@@ -135,7 +139,9 @@ class FriendsList extends Component
         
         if ($this->search) {
             $query->whereHas('receiver', function($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('username', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
         
@@ -169,11 +175,18 @@ class FriendsList extends Component
                                 ->push($currentUser->id)
                                 ->unique();
         
-        $query = User::whereNotIn('id', $excludeIds)
-                     ->inRandomOrder(); // عرض المستخدمين بشكل عشوائي
+        $query = User::whereNotIn('id', $excludeIds);
         
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            // البحث عن الاسم أو username أو email
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('username', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
+        } else {
+            // عرض المستخدمين بشكل عشوائي فقط عند عدم البحث
+            $query->inRandomOrder();
         }
         
         return $query->paginate(15); // عرض 15 اقتراح

@@ -493,6 +493,10 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
         // التحقق من عدم وجود علاقة صداقة مسبقة
         $existingFriendship = Friendship::findBetweenUsers($this->id, $userId);
         if ($existingFriendship) {
+            // إذا كان محظور، لا يمكن إرسال طلب
+            if ($existingFriendship->status === 'blocked') {
+                return null;
+            }
             return null;
         }
 

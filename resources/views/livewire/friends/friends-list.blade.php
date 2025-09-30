@@ -14,7 +14,12 @@
                 <input type="text" 
                        wire:model.debounce.300ms="search" 
                        class="form-control" 
-                       placeholder="البحث عن الأصدقاء...">
+                       placeholder="البحث بالاسم أو اسم المستخدم أو البريد...">
+                @if($search)
+                    <button class="btn btn-outline-secondary" wire:click="$set('search', '')" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
@@ -82,7 +87,12 @@
                         <!-- معلومات المستخدم -->
                         <div class="user-info">
                             <h5 class="user-name">{{ $user->name }}</h5>
-                            @if($user->email)
+                            @if($user->username)
+                                <p class="user-username">
+                                    <i class="fas fa-at"></i> {{ $user->username }}
+                                </p>
+                            @endif
+                            @if($user->email && $search)
                                 <p class="user-email">{{ $user->email }}</p>
                             @endif
                             
@@ -291,9 +301,16 @@
     margin-bottom: 0.5rem;
 }
 
+.user-username {
+    color: #007bff;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
 .user-email {
     color: #6c757d;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 0.5rem;
 }
 
