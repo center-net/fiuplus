@@ -1,5 +1,5 @@
 <div class="container py-4 fb-profile-page">
-    @section('modals')
+@section('modals')
     <header class="card border-0 shadow-sm overflow-hidden fb-profile-cover">
         <div class="fb-cover-photo position-relative">
             <img src="{{ $profileUser->profile?->getCoverPhotoUrl() ?? asset('images/profile/default-cover.jpg') }}" alt="{{ $profileUser->name }} cover image" class="img-fluid w-100 object-fit-cover" style="height: 280px; object-fit: cover;">

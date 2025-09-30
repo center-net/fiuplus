@@ -74,6 +74,15 @@ Route::group(
             // Profile page
             Route::get('/profile/{user:username?}', ProfileShow::class)
                 ->name('profile.show');
+                
+            // Friends Routes - Using Livewire
+            Route::get('/friends', \App\Http\Livewire\Friends\FriendsIndex::class)
+                ->name('friends.index');
+                
+            // Test Friends System Route
+            Route::get('/test-friends', function () {
+                return view('test-friends');
+            })->name('test.friends');
         });
    
     }

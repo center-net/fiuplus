@@ -100,8 +100,8 @@ class Show extends Component
             return 'self';
         }
 
-        // TODO: implement real friend relationship detection when data is ready.
-        return $this->profileUser->friends?->contains($viewer->id) ? 'friend' : 'other';
+        // Check if viewer is a friend of the profile user
+        return $this->profileUser->friends->contains($viewer->id) ? 'friend' : 'other';
     }
 
     /**

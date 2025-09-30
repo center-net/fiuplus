@@ -55,6 +55,7 @@ class Profile extends Model implements TranslatableContract
      * الحصول على رابط صورة الغلاف.
      */
 
+
         public function getCoverPhotoUrl()
     {
         if ($this->cover_photo) {
@@ -62,7 +63,7 @@ class Profile extends Model implements TranslatableContract
         }
         
         // إذا لم يكن هناك صورة، نستخدم صورة افتراضية من UI Avatars
-        $name = urlencode($this->getDisplayName());
+        $name = urlencode($this->user->getDisplayName());
         return "https://ui-avatars.com/api/?name={$name}&background=random";
     }
 }

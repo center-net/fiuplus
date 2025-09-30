@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 ProfileSeeder::class,
                 UserSettingsSeeder::class,
+                FriendsSystemSeeder::class,
             ]);
 
             // إنشاء مستخدم مدير النظام (الاسم عبر الترجمة)

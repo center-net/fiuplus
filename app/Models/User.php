@@ -396,4 +396,291 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
               });
         });
     }
+
+    // ==================== علاقات الأصدقاء ====================
+
+    /**
+     * طلبات الصداقة المرسلة
+     */
+    public function sentFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'sender_id');
+    }
+
+    /**
+     * طلبات الصداقة المستقبلة
+     */
+    public function receivedFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'receiver_id');
+    }
+
+    /**
+     * جميع علاقات الصداقة (مرسلة ومستقبلة)
+     */
+    public function friendships()
+    {
+        return $this->sentFriendRequests()->union($this->receivedFriendRequests()->getQuery());
+    }
+
+    /**
+     * الأصدقاء المقبولين (كعلاقة)
+     */
+    public function friends()
+    {
+        // استخدام belongsToMany مع custom query لدعم العلاقة ثنائية الاتجاه
+        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id')
+            ->wherePivot('status', 'accepted')
+            ->withPivot('status', 'created_at', 'accepted_at')
+            ->orWhere(function ($query) {
+                $query->where('friendships.receiver_id', $this->id)
+                      ->where('friendships.status', 'accepted');
+            });
+    }
+
+    /**
+     * الحصول على قائمة الأصدقاء كـ Collection
+     */
+    public function getFriends()
+    {
+        $sentFriends = $this->sentFriendRequests()
+            ->where('status', 'accepted')
+            ->with('receiver')
+            ->get()
+            ->pluck('receiver');
+
+        $receivedFriends = $this->receivedFriendRequests()
+            ->where('status', 'accepted')
+            ->with('sender')
+            ->get()
+            ->pluck('sender');
+
+        return $sentFriends->merge($receivedFriends);
+    }
+
+    /**
+     * طلبات الصداقة المعلقة المستقبلة (كعلاقة)
+     */
+    public function pendingFriendRequests()
+    {
+        return $this->receivedFriendRequests()->where('status', 'pending');
+    }
+
+    /**
+     * الحصول على طلبات الصداقة المعلقة كـ Collection
+     */
+    public function getPendingFriendRequests()
+    {
+        return $this->receivedFriendRequests()
+            ->where('status', 'pending')
+            ->with('sender')
+            ->get();
+    }
+
+    /**
+     * إرسال طلب صداقة
+     */
+    public function sendFriendRequest(User $user): ?Friendship
+    {
+        // التحقق من عدم إرسال طلب لنفس المستخدم
+        if ($this->id === $user->id) {
+            return null;
+        }
+
+        // التحقق من عدم وجود علاقة صداقة مسبقة
+        $existingFriendship = Friendship::findBetweenUsers($this->id, $user->id);
+        if ($existingFriendship) {
+            return null;
+        }
+
+        // إنشاء طلب الصداقة
+        $friendship = Friendship::create([
+            'sender_id' => $this->id,
+            'receiver_id' => $user->id,
+            'status' => 'pending',
+        ]);
+
+        // إنشاء إشعار
+        Notification::createFriendRequest($user, $this);
+
+        return $friendship;
+    }
+
+    /**
+     * قبول طلب صداقة
+     */
+    public function acceptFriendRequest($sender): bool
+    {
+        $senderId = $sender instanceof User ? $sender->id : $sender;
+        
+        $friendship = Friendship::where('sender_id', $senderId)
+            ->where('receiver_id', $this->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$friendship) {
+            return false;
+        }
+
+        $accepted = $friendship->accept();
+
+        if ($accepted) {
+            // إنشاء إشعار للمرسل
+            $senderUser = $sender instanceof User ? $sender : User::find($senderId);
+            if ($senderUser) {
+                Notification::createFriendAccepted($senderUser, $this);
+            }
+        }
+
+        return $accepted;
+    }
+
+    /**
+     * رفض طلب صداقة
+     */
+    public function declineFriendRequest($sender): bool
+    {
+        $senderId = $sender instanceof User ? $sender->id : $sender;
+        
+        $friendship = Friendship::where('sender_id', $senderId)
+            ->where('receiver_id', $this->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return $friendship ? $friendship->decline() : false;
+    }
+
+    /**
+     * إلغاء الصداقة
+     */
+    public function removeFriend(User $friend): bool
+    {
+        $friendship = Friendship::findBetweenUsers($this->id, $friend->id);
+        return $friendship ? $friendship->delete() : false;
+    }
+
+    /**
+     * حظر مستخدم
+     */
+    public function blockUser(User $user): bool
+    {
+        $friendship = Friendship::findBetweenUsers($this->id, $user->id);
+        
+        if ($friendship) {
+            return $friendship->block();
+        }
+
+        // إنشاء علاقة حظر جديدة
+        return (bool) Friendship::create([
+            'sender_id' => $this->id,
+            'receiver_id' => $user->id,
+            'status' => 'blocked',
+        ]);
+    }
+
+    /**
+     * التحقق من حالة الصداقة مع مستخدم آخر
+     */
+    public function getFriendshipStatus($user): ?string
+    {
+        $userId = $user instanceof User ? $user->id : $user;
+        
+        if ($this->id === $userId) {
+            return 'self';
+        }
+
+        $friendship = Friendship::findBetweenUsers($this->id, $userId);
+        
+        if (!$friendship) {
+            return 'none';
+        }
+
+        return $friendship->status;
+    }
+
+    /**
+     * التحقق من كون المستخدم صديق
+     */
+    public function isFriendWith(User $user): bool
+    {
+        return $this->getFriendshipStatus($user) === 'accepted';
+    }
+
+    /**
+     * التحقق من وجود طلب صداقة معلق
+     */
+    public function hasPendingFriendRequestWith(User $user): bool
+    {
+        return $this->getFriendshipStatus($user) === 'pending';
+    }
+
+    /**
+     * الطلبات المرسلة المعلقة
+     */
+    public function sentPendingRequests()
+    {
+        return $this->sentFriendRequests()->where('status', 'pending');
+    }
+
+    /**
+     * التحقق من كون المستخدم محظور
+     */
+    public function isBlockedBy(User $user): bool
+    {
+        $friendship = Friendship::findBetweenUsers($this->id, $user->id);
+        return $friendship && $friendship->status === 'blocked' && $friendship->sender_id === $user->id;
+    }
+
+    /**
+     * التحقق من حظر مستخدم آخر
+     */
+    public function hasBlocked(User $user): bool
+    {
+        $friendship = Friendship::findBetweenUsers($this->id, $user->id);
+        return $friendship && $friendship->status === 'blocked' && $friendship->sender_id === $this->id;
+    }
+
+    /**
+     * عدد الأصدقاء
+     */
+    public function getFriendsCount(): int
+    {
+        $sentCount = $this->sentFriendRequests()->where('status', 'accepted')->count();
+        $receivedCount = $this->receivedFriendRequests()->where('status', 'accepted')->count();
+        return $sentCount + $receivedCount;
+    }
+
+    /**
+     * عدد طلبات الصداقة المعلقة
+     */
+    public function getPendingFriendRequestsCount(): int
+    {
+        return $this->receivedFriendRequests()->where('status', 'pending')->count();
+    }
+
+    // ==================== علاقات الإشعارات ====================
+
+    /**
+     * إشعارات المستخدم
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
+     * الإشعارات غير المقروءة
+     */
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    /**
+     * عدد الإشعارات غير المقروءة
+     */
+    public function getUnreadNotificationsCount(): int
+    {
+        return $this->unreadNotifications()->count();
+    }
 }

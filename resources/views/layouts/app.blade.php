@@ -27,7 +27,7 @@
             <nav class="fb-nav" aria-label="{{ __('layout.primary_nav_label') }}">
                 <a href="#" class="active" aria-label="{{ __('layout.nav_home_label') }}"><i
                         class="fas fa-home fa-lg" aria-hidden="true"></i><span>{{ __('layout.nav_home') }}</span></a>
-                <a href="#" aria-label="{{ __('layout.nav_friends_label') }}"><i class="fas fa-users fa-lg"
+                <a href="{{ route('friends.index') }}" aria-label="{{ __('layout.nav_friends_label') }}"><i class="fas fa-users fa-lg"
                         aria-hidden="true"></i><span>{{ __('layout.nav_friends') }}</span></a>
                 <a href="#" aria-label="{{ __('layout.nav_watch_label') }}"><i class="fas fa-tv fa-lg"
                         aria-hidden="true"></i><span>{{ __('layout.nav_watch') }}</span></a>
@@ -43,9 +43,7 @@
                 <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_messenger') }}"
                     title="{{ __('layout.action_messenger') }}"><i class="fab fa-facebook-messenger"
                         aria-hidden="true"></i></button>
-                <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_notifications') }}"
-                    title="{{ __('layout.action_notifications') }}"><i class="fas fa-bell"
-                        aria-hidden="true"></i></button>
+                @livewire('notification-dropdown')
                 <div class="fb-language-switcher" aria-label="{{ __('layout.language_switcher_label') }}">
 
                     <label for="localeSwitcher"
