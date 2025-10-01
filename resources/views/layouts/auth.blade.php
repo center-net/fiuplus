@@ -16,6 +16,7 @@
     <link href="{{ asset('css/bootstrap.rtl.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/all.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
     @livewireStyles
 </head>
 <body>
@@ -44,7 +45,7 @@
             </div>
 
             <!-- Page Content -->
-            <div class="container-fluid" style="margin-top: 60px;">
+            <div >
                 {{ $slot }}
             </div>
     </div>

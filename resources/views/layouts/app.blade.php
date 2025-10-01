@@ -38,13 +38,20 @@
             </nav>
 
             <div class="fb-quick-actions">
-                <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_create') }}"
-                    title="{{ __('layout.action_create') }}"><i class="fas fa-plus" aria-hidden="true"></i></button>
+                <div class="fb-create-menu" data-create-menu>
+                    <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_create') }}"
+                        title="{{ __('layout.action_create') }}" aria-haspopup="true" aria-expanded="false" aria-controls="createMenuDropdown">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                    </button>
+                    <div id="createMenuDropdown" class="fb-create-dropdown" role="menu" hidden>
+                        @include('layouts.partials._sidebar')
+                    </div>
+                </div>
                 <button class="fb-action-btn" type="button" aria-label="{{ __('layout.action_messenger') }}"
                     title="{{ __('layout.action_messenger') }}"><i class="fab fa-facebook-messenger"
                         aria-hidden="true"></i></button>
                 @livewire('notification-dropdown')
-                <div class="fb-language-switcher" aria-label="{{ __('layout.language_switcher_label') }}">
+                {{-- <div class="fb-language-switcher" aria-label="{{ __('layout.language_switcher_label') }}">
 
                     <label for="localeSwitcher"
                         class="visually-hidden">{{ __('layout.language_switcher_label') }}</label>
@@ -67,7 +74,7 @@
                             @endif
                         @endforeach
                     </div>
-                </div>
+                </div> --}}
                 <div class="fb-profile-menu" data-profile-menu>
                     <button class="fb-profile-mini" type="button" aria-label="{{ __('layout.profile_menu_label') }}"
                         aria-haspopup="true" aria-expanded="false" aria-controls="profileMenuDropdown">
@@ -316,6 +323,109 @@
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') {
                     closeMenu();
+                }
+            });
+        });
+
+        // Create Menu Dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const createMenu = document.querySelector('[data-create-menu]');
+            if (!createMenu) {
+                return;
+            }
+
+            const toggleButton = createMenu.querySelector('.fb-action-btn');
+            const dropdown = createMenu.querySelector('.fb-create-dropdown');
+            const focusableSelector = 'a[href], button:not([disabled])';
+
+            const closeCreateMenu = () => {
+                if (!createMenu.classList.contains('open')) {
+                    return;
+                }
+
+                createMenu.classList.remove('open');
+                toggleButton.setAttribute('aria-expanded', 'false');
+                dropdown.hidden = true;
+            };
+
+            const openCreateMenu = () => {
+                if (createMenu.classList.contains('open')) {
+                    return;
+                }
+
+                createMenu.classList.add('open');
+                toggleButton.setAttribute('aria-expanded', 'true');
+                dropdown.hidden = false;
+            };
+
+            const toggleCreateMenu = () => {
+                if (createMenu.classList.contains('open')) {
+                    closeCreateMenu();
+                    return;
+                }
+
+                openCreateMenu();
+                const [firstItem] = dropdown.querySelectorAll(focusableSelector);
+                if (firstItem) {
+                    firstItem.focus({
+                        preventScroll: true
+                    });
+                }
+            };
+
+            toggleButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                toggleCreateMenu();
+            });
+
+            toggleButton.addEventListener('keydown', (event) => {
+                const {
+                    key
+                } = event;
+                if (key === 'Enter' || key === ' ') {
+                    event.preventDefault();
+                    toggleCreateMenu();
+                } else if (key === 'ArrowDown') {
+                    event.preventDefault();
+                    openCreateMenu();
+                    const [firstItem] = dropdown.querySelectorAll(focusableSelector);
+                    if (firstItem) {
+                        firstItem.focus({
+                            preventScroll: true
+                        });
+                    }
+                } else if (key === 'Escape') {
+                    event.preventDefault();
+                    closeCreateMenu();
+                }
+            });
+
+            dropdown.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeCreateMenu();
+                    toggleButton.focus({
+                        preventScroll: true
+                    });
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!createMenu.contains(event.target)) {
+                    closeCreateMenu();
+                }
+            });
+
+            createMenu.addEventListener('focusout', (event) => {
+                const nextFocused = event.relatedTarget;
+                if (!nextFocused || !createMenu.contains(nextFocused)) {
+                    closeCreateMenu();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeCreateMenu();
                 }
             });
         });

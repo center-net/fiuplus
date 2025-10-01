@@ -275,6 +275,84 @@ a {
     margin: 0;
 }
 
+/* Create Menu Dropdown */
+.fb-create-menu {
+    position: relative;
+}
+
+.fb-create-dropdown {
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + 8px);
+    min-width: 320px;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 1rem;
+    background: var(--fb-card-bg);
+    border: 1px solid var(--fb-card-border);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    display: none;
+    z-index: 2000;
+}
+
+.fb-create-menu.open > .fb-create-dropdown {
+    display: block;
+}
+
+.fb-create-dropdown .sidebar {
+    position: static;
+    width: 100%;
+    background: transparent;
+}
+
+.fb-create-dropdown .sidebar > div {
+    width: 100%;
+    padding: 0;
+}
+
+.fb-create-dropdown .nav-pills .nav-link {
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    margin-bottom: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.fb-create-dropdown .nav-pills .nav-link:hover {
+    background: #f0f2f5;
+}
+
+.fb-create-dropdown .nav-pills .nav-link.active {
+    background: var(--fb-primary);
+}
+
+.fb-create-dropdown hr {
+    margin: 0.75rem 0;
+    border-color: var(--fb-card-border);
+}
+
+.fb-create-dropdown a {
+    color: var(--fb-text);
+    text-decoration: none;
+}
+
+.fb-create-dropdown .fs-4 {
+    font-size: 1.1rem !important;
+    font-weight: 600;
+}
+
+/* Hide sidebar toggle button in dropdown */
+.fb-create-dropdown #sidebarToggle,
+.fb-create-dropdown .sidebar-backdrop {
+    display: none !important;
+}
+
+[dir="rtl"] .fb-create-menu.open > .fb-create-dropdown {
+    direction: rtl;
+}
+
 .fb-layout {
     flex: 1 1 auto;
     display: grid;

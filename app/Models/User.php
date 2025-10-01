@@ -38,6 +38,7 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
         'city_id',
         'village_id',
         'last_seen',
+        'referred_by',
     ];
 
     /**
@@ -720,5 +721,39 @@ class User extends Authenticatable implements MustVerifyEmail, TranslatableContr
     public function getUnreadNotificationsCount(): int
     {
         return $this->unreadNotifications()->count();
+    }
+
+    // ==================== علاقات الإحالة (Referral System) ====================
+
+    /**
+     * المستخدم الذي قام بدعوة هذا المستخدم
+     */
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by', 'username');
+    }
+
+    /**
+     * المستخدمين الذين تم دعوتهم من قبل هذا المستخدم
+     */
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referred_by', 'username');
+    }
+
+    /**
+     * عدد المستخدمين الذين تم دعوتهم
+     */
+    public function getReferralsCount(): int
+    {
+        return $this->referrals()->count();
+    }
+
+    /**
+     * الحصول على رابط الدعوة
+     */
+    public function getReferralLink(): string
+    {
+        return route('register', ['ref' => $this->username]);
     }
 }

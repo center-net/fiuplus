@@ -12,7 +12,7 @@
         <div class="collapse navbar-collapse" id="topNavbar">
             <ul class="navbar-nav ms-auto">
                 @auth
-                    <li class="nav-item dropdown mx-2">
+                    {{-- <li class="nav-item dropdown mx-2">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="messagesDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ asset('images/Flag/' . LaravelLocalization::setLocale() . '.png') }}"
@@ -41,7 +41,7 @@
                                 @endif
                             @endforeach
                         </ul>
-                    </li>
+                    </li> --}}
                     <livewire:layout.notifications-dropdown />
                     <livewire:layout.messages-dropdown />
 

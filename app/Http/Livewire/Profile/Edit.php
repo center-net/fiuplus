@@ -50,10 +50,19 @@ class Edit extends Component
 
 
 
+    protected $listeners = ['openEditProfileModal' => 'handleOpenModal'];
+
     public function mount()
     {
         $this->user = auth()->user();
         $this->loadOptions();
+        $this->loadUserData();
+    }
+
+    public function handleOpenModal()
+    {
+        // إعادة تحميل بيانات المستخدم من قاعدة البيانات
+        $this->user = auth()->user()->fresh();
         $this->loadUserData();
     }
 

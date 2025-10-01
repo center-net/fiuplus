@@ -11,7 +11,7 @@ class FriendsList extends Component
 {
     use WithPagination;
     
-    public $activeTab = 'friends'; // friends, requests, sent, suggestions
+    public $activeTab = 'friends'; // friends, requests, sent, suggestions, referrals
     public $search = '';
     
     protected $listeners = [
@@ -192,6 +192,28 @@ class FriendsList extends Component
         return $query->paginate(15); // عرض 15 اقتراح
     }
     
+    public function getReferralsProperty()
+    {
+        if (!Auth::check()) {
+            return collect();
+        }
+        
+        $currentUser = Auth::user();
+        
+        // الحصول على جميع المستخدمين الذين سجلوا عن طريق رابط الإحالة الخاص بالمستخدم الحالي
+        $query = User::where('referred_by', $currentUser->username);
+        
+        if ($this->search) {
+            // استخدام scope البحث الموجود في User Model
+            $query->search($this->search);
+        }
+        
+        // ترتيب حسب تاريخ التسجيل (الأحدث أولاً)
+        $query->orderBy('created_at', 'desc');
+        
+        return $query->paginate(12);
+    }
+    
     public function render()
     {
         $data = [];
@@ -208,6 +230,9 @@ class FriendsList extends Component
                 break;
             case 'suggestions':
                 $data['users'] = $this->suggestions;
+                break;
+            case 'referrals':
+                $data['users'] = $this->referrals;
                 break;
         }
         

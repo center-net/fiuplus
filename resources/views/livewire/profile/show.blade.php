@@ -42,6 +42,10 @@
                                     <i class="fas fa-edit" aria-hidden="true"></i>
                                     {{ __('profile.edit_profile_button') }}
                                 </button>
+                                <a href="{{ route('invite.friend') }}" class="btn btn-success d-inline-flex align-items-center gap-2">
+                                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                    دعوة صديق
+                                </a>
                             @else
                                 @livewire('friends.friend-button', ['userId' => $profileUser->id], key('profile-friend-button-'.$profileUser->id))
                             @endif

@@ -14,8 +14,9 @@ use App\Http\Livewire\Dashboard\Villages\Index as VillagesIndex;
 use App\Http\Livewire\Dashboard\Stores\Index as StoresIndex;
 use App\Http\Livewire\Dashboard\StoreCategories\Index as StoreCategoriesIndex;
 use App\Http\Livewire\Profile\Show as ProfileShow;
+use App\Http\Livewire\Profile\InviteFriend;
 use App\Http\Livewire\Auth\Login;
-// use App\Http\Livewire\Auth\Register;
+use App\Http\Livewire\Auth\Register;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +43,7 @@ Route::group(
         // Authentication Routes
         Route::middleware('guest')->group(function () {
             Route::get('login', Login::class)->name('login');
-            // Route::get('register', Register::class)->name('register');
+            Route::get('register', Register::class)->name('register');
         });
 
         Route::post('/logout', function () {
@@ -74,6 +75,14 @@ Route::group(
             // Profile page
             Route::get('/profile/{user:username?}', ProfileShow::class)
                 ->name('profile.show');
+            
+            // Edit Profile page
+            Route::get('/profile-edit', \App\Http\Livewire\Profile\Edit::class)
+                ->name('profile.edit');
+            
+            // Invite Friend page
+            Route::get('/invite-friend', InviteFriend::class)
+                ->name('invite.friend');
                 
             // Friends Routes - Using Livewire
             Route::get('/friends', \App\Http\Livewire\Friends\FriendsIndex::class)
@@ -83,6 +92,16 @@ Route::group(
             Route::get('/test-friends', function () {
                 return view('test-friends');
             })->name('test.friends');
+            
+            // Test Mentions System Route
+            Route::get('/test-mentions', function () {
+                return view('test-mentions');
+            })->name('test.mentions');
+            
+            // Test Username Directive Route
+            Route::get('/test-username', function () {
+                return view('test-username');
+            })->name('test.username');
         });
    
     }

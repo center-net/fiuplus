@@ -19,6 +19,7 @@ class Profile extends Model implements TranslatableContract
      */
     protected $fillable = [
         'user_id',
+        'personal_name',
         'cover_photo',
         'date_of_birth',
     ];

@@ -17,12 +17,12 @@ return new class extends Migration
             
             // معلومات الحساب الأساسية
             $table->string('username')->unique()->index()->comment('اسم المستخدم الفريد');
-            $table->string('email')->unique()->comment('البريد الإلكتروني');
+            $table->string('email')->nullable()->unique()->comment('البريد الإلكتروني');
             $table->string('password')->comment('كلمة المرور المشفرة');
             
             // المعلومات الشخصية
             $table->string('avatar')->nullable()->comment('صورة المستخدم');
-            $table->string('phone')->unique()->comment('رقم الهاتف');
+            $table->string('phone')->nullable()->unique()->comment('رقم الهاتف');
             
             // العلاقات
             $table->foreignId('role_id')
@@ -51,6 +51,11 @@ return new class extends Migration
                  ->constrained('villages')
                  ->cascadeOnUpdate()
                  ->nullOnDelete();
+            
+            // نظام الإحالة (Referral System)
+            $table->string('referred_by')
+                 ->nullable()
+                 ->comment('اسم المستخدم المرجعي الذي دعا هذا المستخدم');
             
             // الأوقات والتواريخ
             $table->timestamp('email_verified_at')

@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_translations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('locale')->index();
-            $table->string('name')->nullable();
-            $table->unique(['user_id', 'locale']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('referred_by')->nullable()->after('phone')->comment('اسم المستخدم الذي قام بالدعوة');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_translations');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('referred_by');
+        });
     }
 };

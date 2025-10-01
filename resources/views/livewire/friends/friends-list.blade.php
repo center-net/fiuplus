@@ -62,6 +62,18 @@
                 <i class="fas fa-user-plus"></i>
                 اقتراحات
             </button>
+            
+            <button class="nav-link {{ $activeTab === 'referrals' ? 'active' : '' }}" 
+                    wire:click="setActiveTab('referrals')">
+                <i class="fas fa-users-cog"></i>
+                فريق الإحالة
+                @if(Auth::check())
+                    @php $referralsCount = App\Models\User::where('referred_by', Auth::user()->username)->count(); @endphp
+                    @if($referralsCount > 0)
+                        <span class="badge bg-success ms-1">{{ $referralsCount }}</span>
+                    @endif
+                @endif
+            </button>
         </nav>
     </div>
     
@@ -112,6 +124,22 @@
                                     <i class="fas fa-paper-plane"></i>
                                     مرسل منذ {{ ($user->pivot && $user->pivot->created_at) ? $user->pivot->created_at->diffForHumans() : 'غير محدد' }}
                                 </p>
+                            @elseif($activeTab === 'referrals')
+                                <p class="user-meta">
+                                    <i class="fas fa-user-check"></i>
+                                    انضم منذ {{ $user->created_at->diffForHumans() }}
+                                </p>
+                                @if($user->email_verified_at)
+                                    <p class="user-meta text-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        تم التحقق من البريد
+                                    </p>
+                                @else
+                                    <p class="user-meta text-warning">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        لم يتم التحقق من البريد
+                                    </p>
+                                @endif
                             @endif
                         </div>
                         
@@ -149,6 +177,14 @@
                     <i class="fas fa-user-plus"></i>
                     <h4>لا توجد اقتراحات</h4>
                     <p>لا توجد اقتراحات أصدقاء متاحة حالياً</p>
+                @elseif($activeTab === 'referrals')
+                    <i class="fas fa-users-cog"></i>
+                    <h4>لا يوجد أعضاء في فريق الإحالة</h4>
+                    <p>لم يقم أي شخص بالتسجيل باستخدام رابط الإحالة الخاص بك بعد</p>
+                    <div class="alert alert-info mt-3" style="max-width: 500px; margin: 0 auto;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>نصيحة:</strong> شارك رابط الإحالة الخاص بك مع الأصدقاء لبناء فريقك!
+                    </div>
                 @endif
             </div>
         @endif

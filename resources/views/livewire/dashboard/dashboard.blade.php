@@ -1,4 +1,10 @@
 <div>
+    <!-- Complete Profile Modal -->
+    @livewire('profile.complete-profile')
+    
+    <!-- Edit Profile Modal (for continueToProfile action) -->
+    @livewire('profile.edit')
+    
     <div class="row">
         <div class="col-lg-3 col-6">
             <!-- small box -->

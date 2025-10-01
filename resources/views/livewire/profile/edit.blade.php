@@ -270,6 +270,15 @@
         }
     }
 
+    // Function to open modal
+    function openModal() {
+        const modalElement = document.getElementById('editProfileModal');
+        if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+
     document.addEventListener('livewire:init', function () {
         // Handle toast notifications
         Livewire.on('show-toast', (event) => {
@@ -305,6 +314,13 @@
         // Handle modal close event
         Livewire.on('close-modal', function () {
             closeModal();
+        });
+        
+        // Handle open edit profile modal event (from CompleteProfile component)
+        Livewire.on('openEditProfileModal', function () {
+            setTimeout(() => {
+                openModal();
+            }, 300); // Small delay to ensure complete profile modal is closed first
         });
         
         // Monitor form submission and close modal on success
