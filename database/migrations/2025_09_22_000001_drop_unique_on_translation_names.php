@@ -11,11 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // ملاحظة: أسماء الفهارس التلقائية من Laravel تكون <table>_<column>_unique عادةً
-        Schema::table('user_translations', function (Blueprint $table) {
-            try { $table->dropUnique('user_translations_name_unique'); } catch (\Throwable $e) {}
-        });
-
+   
         Schema::table('role_translations', function (Blueprint $table) {
             try { $table->dropUnique('role_translations_name_unique'); } catch (\Throwable $e) {}
         });
