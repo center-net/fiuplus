@@ -8,15 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Set DB default to false (MySQL syntax)
-        try {
-            \DB::statement('ALTER TABLE stores MODIFY is_active TINYINT(1) NOT NULL DEFAULT 0');
-        } catch (\Throwable $e) {
-            // Fallback: ignore if DB doesn't support this; app-layer ensures false on create
-        }
+        Schema::table('stores', function (Blueprint $table) {
+        $table->boolean('is_active')->default(false)->change();
+    });
 
-        // Set all existing stores to inactive by default
-        \DB::statement('UPDATE stores SET is_active = 0');
+    // تحديث البيانات في migration منفصل أو عبر seeders
+    DB::table('stores')->update(['is_active' => false]);
     }
 
     public function down(): void
