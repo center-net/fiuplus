@@ -9,15 +9,27 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Set DB default to false (MySQL syntax)
+        // Set DB default to false (PostgreSQL syntax)
         try {
-            DB::statement('ALTER TABLE stores MODIFY is_active TINYINT(1) NOT NULL DEFAULT 0');
+            // Check if we're using PostgreSQL
+            if (DB::connection()->getDriverName() === 'pgsql') {
+                DB::statement('ALTER TABLE stores ALTER COLUMN is_active SET DEFAULT 0');
+                DB::statement('ALTER TABLE stores ALTER COLUMN is_active SET NOT NULL');
+            } else {
+                // MySQL syntax
+                DB::statement('ALTER TABLE stores MODIFY is_active TINYINT(1) NOT NULL DEFAULT 0');
+            }
         } catch (\Throwable $e) {
             // Fallback: ignore if DB doesn't support this; app-layer ensures false on create
         }
 
         // Set all existing stores to inactive by default
-        DB::statement('UPDATE stores SET is_active = 0');
+        try {
+            DB::statement('UPDATE stores SET is_active = 0');
+        } catch (\Throwable $e) {
+            // Log error but continue migration
+            \Log::error('Failed to update stores is_active: ' . $e->getMessage());
+        }
     }
 
     public function down(): void
